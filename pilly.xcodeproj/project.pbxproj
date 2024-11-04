@@ -3,50 +3,108 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 77;
+	objectVersion = 63;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		27C856DE2CD9402500660C02 /* AddMedView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 27C856CB2CD9402500660C02 /* AddMedView.swift */; };
+		27C856DF2CD9402500660C02 /* AddMedViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 27C856CC2CD9402500660C02 /* AddMedViewController.swift */; };
+		27C856E02CD9402500660C02 /* Med.swift in Sources */ = {isa = PBXBuildFile; fileRef = 27C856CE2CD9402500660C02 /* Med.swift */; };
+		27C856E12CD9402500660C02 /* MedListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 27C856D02CD9402500660C02 /* MedListView.swift */; };
+		27C856E22CD9402500660C02 /* TableViewMedCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 27C856D12CD9402500660C02 /* TableViewMedCell.swift */; };
+		27C856E32CD9402500660C02 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 27C856D22CD9402500660C02 /* ViewController.swift */; };
+		27C856E42CD9402500660C02 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 27C856D42CD9402500660C02 /* AppDelegate.swift */; };
+		27C856E52CD9402500660C02 /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 27C856DB2CD9402500660C02 /* SceneDelegate.swift */; };
+		27C856E62CD9402500660C02 /* Utilities.swift in Sources */ = {isa = PBXBuildFile; fileRef = 27C856DC2CD9402500660C02 /* Utilities.swift */; };
+		27C856E72CD9402500660C02 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 27C856D52CD9402500660C02 /* Assets.xcassets */; };
+		27C856E92CD9402500660C02 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 27C856D82CD9402500660C02 /* LaunchScreen.storyboard */; };
+		27C856EA2CD9402500660C02 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 27C856DA2CD9402500660C02 /* Main.storyboard */; };
+		B76B38578BC99E7ACAE86699 /* Pods_pilly.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CB8658204ACF39EADB05D0F9 /* Pods_pilly.framework */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXFileReference section */
+		0FFD339107E28604142B69D7 /* Pods-pilly.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-pilly.release.xcconfig"; path = "Target Support Files/Pods-pilly/Pods-pilly.release.xcconfig"; sourceTree = "<group>"; };
+		27C856CB2CD9402500660C02 /* AddMedView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddMedView.swift; sourceTree = "<group>"; };
+		27C856CC2CD9402500660C02 /* AddMedViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddMedViewController.swift; sourceTree = "<group>"; };
+		27C856CE2CD9402500660C02 /* Med.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Med.swift; sourceTree = "<group>"; };
+		27C856D02CD9402500660C02 /* MedListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MedListView.swift; sourceTree = "<group>"; };
+		27C856D12CD9402500660C02 /* TableViewMedCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TableViewMedCell.swift; sourceTree = "<group>"; };
+		27C856D22CD9402500660C02 /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
+		27C856D42CD9402500660C02 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
+		27C856D52CD9402500660C02 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		27C856D62CD9402500660C02 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		27C856D72CD9402500660C02 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
+		27C856D92CD9402500660C02 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
+		27C856DB2CD9402500660C02 /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
+		27C856DC2CD9402500660C02 /* Utilities.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Utilities.swift; sourceTree = "<group>"; };
 		AF1D3F3B2CCAD2F60074DAA7 /* pilly.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = pilly.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		B567FD0EA01699ED8233FF9B /* Pods-pilly.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-pilly.debug.xcconfig"; path = "Target Support Files/Pods-pilly/Pods-pilly.debug.xcconfig"; sourceTree = "<group>"; };
+		CB8658204ACF39EADB05D0F9 /* Pods_pilly.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_pilly.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
-
-/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
-		AF1D3F4D2CCAD2F80074DAA7 /* Exceptions for "pilly" folder in "pilly" target */ = {
-			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
-			membershipExceptions = (
-				Info.plist,
-			);
-			target = AF1D3F3A2CCAD2F60074DAA7 /* pilly */;
-		};
-/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
-
-/* Begin PBXFileSystemSynchronizedRootGroup section */
-		AF1D3F3D2CCAD2F60074DAA7 /* pilly */ = {
-			isa = PBXFileSystemSynchronizedRootGroup;
-			exceptions = (
-				AF1D3F4D2CCAD2F80074DAA7 /* Exceptions for "pilly" folder in "pilly" target */,
-			);
-			path = pilly;
-			sourceTree = "<group>";
-		};
-/* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
 		AF1D3F382CCAD2F60074DAA7 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				B76B38578BC99E7ACAE86699 /* Pods_pilly.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		27C856CD2CD9402500660C02 /* Add Med Screen */ = {
+			isa = PBXGroup;
+			children = (
+				27C856CB2CD9402500660C02 /* AddMedView.swift */,
+				27C856CC2CD9402500660C02 /* AddMedViewController.swift */,
+			);
+			path = "Add Med Screen";
+			sourceTree = "<group>";
+		};
+		27C856CF2CD9402500660C02 /* Data Models */ = {
+			isa = PBXGroup;
+			children = (
+				27C856CE2CD9402500660C02 /* Med.swift */,
+			);
+			path = "Data Models";
+			sourceTree = "<group>";
+		};
+		27C856D32CD9402500660C02 /* Med List Screen */ = {
+			isa = PBXGroup;
+			children = (
+				27C856D02CD9402500660C02 /* MedListView.swift */,
+				27C856D12CD9402500660C02 /* TableViewMedCell.swift */,
+				27C856D22CD9402500660C02 /* ViewController.swift */,
+			);
+			path = "Med List Screen";
+			sourceTree = "<group>";
+		};
+		27C856DD2CD9402500660C02 /* pilly */ = {
+			isa = PBXGroup;
+			children = (
+				27C856CD2CD9402500660C02 /* Add Med Screen */,
+				27C856CF2CD9402500660C02 /* Data Models */,
+				27C856D32CD9402500660C02 /* Med List Screen */,
+				27C856D42CD9402500660C02 /* AppDelegate.swift */,
+				27C856D52CD9402500660C02 /* Assets.xcassets */,
+				27C856D62CD9402500660C02 /* Info.plist */,
+				27C856D82CD9402500660C02 /* LaunchScreen.storyboard */,
+				27C856DA2CD9402500660C02 /* Main.storyboard */,
+				27C856DB2CD9402500660C02 /* SceneDelegate.swift */,
+				27C856DC2CD9402500660C02 /* Utilities.swift */,
+			);
+			path = pilly;
+			sourceTree = "<group>";
+		};
 		AF1D3F322CCAD2F60074DAA7 = {
 			isa = PBXGroup;
 			children = (
-				AF1D3F3D2CCAD2F60074DAA7 /* pilly */,
+				27C856DD2CD9402500660C02 /* pilly */,
 				AF1D3F3C2CCAD2F60074DAA7 /* Products */,
+				F571C7B69250656923147C95 /* Pods */,
+				DEF7B929496A7BD1107B5D51 /* Frameworks */,
 			);
 			sourceTree = "<group>";
 		};
@@ -58,6 +116,24 @@
 			name = Products;
 			sourceTree = "<group>";
 		};
+		DEF7B929496A7BD1107B5D51 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				CB8658204ACF39EADB05D0F9 /* Pods_pilly.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		F571C7B69250656923147C95 /* Pods */ = {
+			isa = PBXGroup;
+			children = (
+				B567FD0EA01699ED8233FF9B /* Pods-pilly.debug.xcconfig */,
+				0FFD339107E28604142B69D7 /* Pods-pilly.release.xcconfig */,
+			);
+			name = Pods;
+			path = Pods;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -65,20 +141,17 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = AF1D3F4E2CCAD2F80074DAA7 /* Build configuration list for PBXNativeTarget "pilly" */;
 			buildPhases = (
+				BCC69E740F4AD24D98180978 /* [CP] Check Pods Manifest.lock */,
 				AF1D3F372CCAD2F60074DAA7 /* Sources */,
 				AF1D3F382CCAD2F60074DAA7 /* Frameworks */,
 				AF1D3F392CCAD2F60074DAA7 /* Resources */,
+				2F7BC1F43DB3454F62BF0730 /* [CP] Embed Pods Frameworks */,
 			);
 			buildRules = (
 			);
 			dependencies = (
 			);
-			fileSystemSynchronizedGroups = (
-				AF1D3F3D2CCAD2F60074DAA7 /* pilly */,
-			);
 			name = pilly;
-			packageProductDependencies = (
-			);
 			productName = pilly;
 			productReference = AF1D3F3B2CCAD2F60074DAA7 /* pilly.app */;
 			productType = "com.apple.product-type.application";
@@ -99,6 +172,7 @@
 				};
 			};
 			buildConfigurationList = AF1D3F362CCAD2F60074DAA7 /* Build configuration list for PBXProject "pilly" */;
+			compatibilityVersion = "Xcode 15.3";
 			developmentRegion = en;
 			hasScannedForEncodings = 0;
 			knownRegions = (
@@ -107,7 +181,6 @@
 			);
 			mainGroup = AF1D3F322CCAD2F60074DAA7;
 			minimizedProjectReferenceProxies = 1;
-			preferredProjectObjectVersion = 77;
 			productRefGroup = AF1D3F3C2CCAD2F60074DAA7 /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
@@ -122,24 +195,98 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				27C856E72CD9402500660C02 /* Assets.xcassets in Resources */,
+				27C856E92CD9402500660C02 /* LaunchScreen.storyboard in Resources */,
+				27C856EA2CD9402500660C02 /* Main.storyboard in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXResourcesBuildPhase section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		2F7BC1F43DB3454F62BF0730 /* [CP] Embed Pods Frameworks */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-pilly/Pods-pilly-frameworks-${CONFIGURATION}-input-files.xcfilelist",
+			);
+			name = "[CP] Embed Pods Frameworks";
+			outputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-pilly/Pods-pilly-frameworks-${CONFIGURATION}-output-files.xcfilelist",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-pilly/Pods-pilly-frameworks.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+		BCC69E740F4AD24D98180978 /* [CP] Check Pods Manifest.lock */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
+				"${PODS_ROOT}/Manifest.lock",
+			);
+			name = "[CP] Check Pods Manifest.lock";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+				"$(DERIVED_FILE_DIR)/Pods-pilly-checkManifestLockResult.txt",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
+			showEnvVarsInLog = 0;
+		};
+/* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		AF1D3F372CCAD2F60074DAA7 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				27C856DE2CD9402500660C02 /* AddMedView.swift in Sources */,
+				27C856DF2CD9402500660C02 /* AddMedViewController.swift in Sources */,
+				27C856E02CD9402500660C02 /* Med.swift in Sources */,
+				27C856E12CD9402500660C02 /* MedListView.swift in Sources */,
+				27C856E22CD9402500660C02 /* TableViewMedCell.swift in Sources */,
+				27C856E32CD9402500660C02 /* ViewController.swift in Sources */,
+				27C856E42CD9402500660C02 /* AppDelegate.swift in Sources */,
+				27C856E52CD9402500660C02 /* SceneDelegate.swift in Sources */,
+				27C856E62CD9402500660C02 /* Utilities.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXSourcesBuildPhase section */
 
+/* Begin PBXVariantGroup section */
+		27C856D82CD9402500660C02 /* LaunchScreen.storyboard */ = {
+			isa = PBXVariantGroup;
+			children = (
+				27C856D72CD9402500660C02 /* Base */,
+			);
+			name = LaunchScreen.storyboard;
+			sourceTree = "<group>";
+		};
+		27C856DA2CD9402500660C02 /* Main.storyboard */ = {
+			isa = PBXVariantGroup;
+			children = (
+				27C856D92CD9402500660C02 /* Base */,
+			);
+			name = Main.storyboard;
+			sourceTree = "<group>";
+		};
+/* End PBXVariantGroup section */
+
 /* Begin XCBuildConfiguration section */
 		AF1D3F4F2CCAD2F80074DAA7 /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = B567FD0EA01699ED8233FF9B /* Pods-pilly.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
@@ -168,6 +315,7 @@
 		};
 		AF1D3F502CCAD2F80074DAA7 /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 0FFD339107E28604142B69D7 /* Pods-pilly.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
