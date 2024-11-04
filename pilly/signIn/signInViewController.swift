@@ -7,9 +7,9 @@
 
 import UIKit
 
-class signInViewController: UIViewController {
+class SignInViewController: UIViewController {
     // MARK: - Properties
-    private let loginView = signInView()
+    private let loginView = SignInView()
     
     // MARK: - Lifecycle
     override func loadView() {
@@ -30,8 +30,8 @@ class signInViewController: UIViewController {
     
     private func setupActions() {
         loginView.backButton.addTarget(self, action: #selector(backButtonTapped), for: .touchUpInside)
-        
         loginView.forgotPasswordButton.addTarget(self, action: #selector(forgotPasswordTapped), for: .touchUpInside)
+        loginView.signInButton.addTarget(self, action: #selector(signInButtonTapped), for: .touchUpInside)
     }
     
     // MARK: - Actions
@@ -41,17 +41,41 @@ class signInViewController: UIViewController {
     
     @objc private func forgotPasswordTapped() {
         // Handle forgot password action
+        // Present forgot password flow
+    }
+    
+    @objc private func signInButtonTapped() {
+        loginView.hideError()
+        
+        guard let username = loginView.usernameTextField.text, !username.isEmpty else {
+            loginView.showError("Please enter your username or email")
+            return
+        }
+        
+        guard let password = loginView.passwordTextField.text, !password.isEmpty else {
+            loginView.showError("Please enter your password")
+            return
+        }
+        
+        // Show loading state
+        loginView.setLoading(true)
+        
+        // Simulate network call
+        DispatchQueue.main.asyncAfter(deadline: .now() + 2) { [weak self] in
+            self?.loginView.setLoading(false)
+            // Handle actual authentication here
+        }
     }
 }
 
 // MARK: - UITextFieldDelegate
-extension signInViewController: UITextFieldDelegate {
+extension SignInViewController: UITextFieldDelegate {
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {
         if textField == loginView.usernameTextField {
             loginView.passwordTextField.becomeFirstResponder()
         } else {
             textField.resignFirstResponder()
-            // Handle login action
+            signInButtonTapped()
         }
         return true
     }
