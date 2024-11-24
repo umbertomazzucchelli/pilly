@@ -6,8 +6,6 @@
 	objectVersion = 77;
 	objects = {
 
-<<<<<<< HEAD
-=======
 /* Begin PBXBuildFile section */
 		AF12213B2CEFDE2000F6090C /* FirebaseAuth in Frameworks */ = {isa = PBXBuildFile; productRef = AF12213A2CEFDE2000F6090C /* FirebaseAuth */; };
 		AF12213D2CEFDE2000F6090C /* FirebaseDatabase in Frameworks */ = {isa = PBXBuildFile; productRef = AF12213C2CEFDE2000F6090C /* FirebaseDatabase */; };
@@ -16,7 +14,6 @@
 		AF1221432CEFDE2000F6090C /* FirebaseStorage in Frameworks */ = {isa = PBXBuildFile; productRef = AF1221422CEFDE2000F6090C /* FirebaseStorage */; };
 /* End PBXBuildFile section */
 
->>>>>>> f88af27 (Revert "Alamofire installation")
 /* Begin PBXFileReference section */
 		AF1D3F3B2CCAD2F60074DAA7 /* pilly.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = pilly.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
@@ -47,14 +44,11 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-<<<<<<< HEAD
-=======
 				AF12213D2CEFDE2000F6090C /* FirebaseDatabase in Frameworks */,
 				AF12213B2CEFDE2000F6090C /* FirebaseAuth in Frameworks */,
 				AF12213F2CEFDE2000F6090C /* FirebaseFirestore in Frameworks */,
 				AF1221432CEFDE2000F6090C /* FirebaseStorage in Frameworks */,
 				AF1221412CEFDE2000F6090C /* FirebaseFirestoreSwift in Frameworks */,
->>>>>>> f88af27 (Revert "Alamofire installation")
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -97,14 +91,11 @@
 			);
 			name = pilly;
 			packageProductDependencies = (
-<<<<<<< HEAD
-=======
 				AF12213A2CEFDE2000F6090C /* FirebaseAuth */,
 				AF12213C2CEFDE2000F6090C /* FirebaseDatabase */,
 				AF12213E2CEFDE2000F6090C /* FirebaseFirestore */,
 				AF1221402CEFDE2000F6090C /* FirebaseFirestoreSwift */,
 				AF1221422CEFDE2000F6090C /* FirebaseStorage */,
->>>>>>> f88af27 (Revert "Alamofire installation")
 			);
 			productName = pilly;
 			productReference = AF1D3F3B2CCAD2F60074DAA7 /* pilly.app */;
@@ -134,12 +125,9 @@
 			);
 			mainGroup = AF1D3F322CCAD2F60074DAA7;
 			minimizedProjectReferenceProxies = 1;
-<<<<<<< HEAD
-=======
 			packageReferences = (
 				AF1221392CEFDE2000F6090C /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
 			);
->>>>>>> f88af27 (Revert "Alamofire installation")
 			preferredProjectObjectVersion = 77;
 			productRefGroup = AF1D3F3C2CCAD2F60074DAA7 /* Products */;
 			projectDirPath = "";
