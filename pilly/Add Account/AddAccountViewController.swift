@@ -10,12 +10,14 @@ import FirebaseAuth
 import FirebaseFirestore
 import Combine
 
+
 class AddAccountViewController: UIViewController {
     
     let addView = AddAccountView()
     let childProgressView = ProgressSpinnerViewController()
     let database = Firestore.firestore()
     let notificationCenter = NotificationCenter.default
+
 
     
     override func loadView() {
@@ -24,6 +26,7 @@ class AddAccountViewController: UIViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
+
         // Add target for register button
         addView.createAccountButton.addTarget(self, action: #selector(onCreateAccountButton), for: .touchUpInside)
         setupNavigation()
@@ -89,7 +92,7 @@ class AddAccountViewController: UIViewController {
         alert.addAction(UIAlertAction(title: "OK", style: .default))
         self.present(alert, animated: true)
     }
-    
+        
     private func setupNavigation() {
         title = "Add New Account"
         // This ensures the navigation bar is visible
