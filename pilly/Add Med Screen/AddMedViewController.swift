@@ -10,7 +10,7 @@ import UIKit
 class AddMedViewController: UIViewController {
     
     // delegate to ViewController when getting back
-    var delegate:ViewController!
+//    var delegate:ViewController!
     
     var selectedTime = "Morning"
     
@@ -57,6 +57,7 @@ class AddMedViewController: UIViewController {
         }
         
         let newMed = Med(title: title, dosage: dosage, time: selectedTime)
+
 //        delegate.delegateOnAddMed(med: newMed)
         navigationController?.popViewController(animated: true)
     }
