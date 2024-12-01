@@ -79,7 +79,7 @@ class AddMedView: UIView {
             labelTime.topAnchor.constraint(equalTo: textFieldDosage.bottomAnchor, constant: 16),
             labelTime.centerXAnchor.constraint(equalTo: self.safeAreaLayoutGuide.centerXAnchor),
                 
-            pickerTime.topAnchor.constraint(equalTo: labelTime.bottomAnchor, constant: 8),
+            pickerTime.topAnchor.constraint(equalTo: labelTime.bottomAnchor, constant: 16),
             pickerTime.centerXAnchor.constraint(equalTo: self.safeAreaLayoutGuide.centerXAnchor),
                 
             buttonAdd.topAnchor.constraint(equalTo: pickerTime.bottomAnchor, constant: 16),

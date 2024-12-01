@@ -18,7 +18,7 @@ class MainScreenView: UIView {
         
         setupLogo()
         setupSignIn()
-        setupAddAccount()
+//        setupAddAccount()
         initConstraints()
     }
     
@@ -31,7 +31,7 @@ class MainScreenView: UIView {
     
     func setupSignIn() {
         signInButton = UIButton(type: .system)
-        signInButton.setTitle("Sign in", for: .normal)
+        signInButton.setTitle("Sign in/Create an Account", for: .normal)
         signInButton.backgroundColor = UIColor(red: 255/255, green: 116/255, blue: 108/255, alpha: 1) // #FF746C
         signInButton.tintColor = .white // Text color for contrast
         signInButton.layer.cornerRadius = 27.5
@@ -40,15 +40,15 @@ class MainScreenView: UIView {
     }
 
     
-    func setupAddAccount() {
-        addAccountButton = UIButton(type: .system)
-        addAccountButton.setTitle("Create an Account", for: .normal)
-        addAccountButton.backgroundColor = UIColor(red: 179/255, green: 235/255, blue: 242/255, alpha: 1) // #B3EBF2
-        addAccountButton.tintColor = .white // Text color for visibility
-        addAccountButton.layer.cornerRadius = 27.5
-        addAccountButton.translatesAutoresizingMaskIntoConstraints = false
-        self.addSubview(addAccountButton)
-    }
+//    func setupAddAccount() {
+//        addAccountButton = UIButton(type: .system)
+//        addAccountButton.setTitle("Create an Account", for: .normal)
+//        addAccountButton.backgroundColor = UIColor(red: 179/255, green: 235/255, blue: 242/255, alpha: 1) // #B3EBF2
+//        addAccountButton.tintColor = .white // Text color for visibility
+//        addAccountButton.layer.cornerRadius = 27.5
+//        addAccountButton.translatesAutoresizingMaskIntoConstraints = false
+//        self.addSubview(addAccountButton)
+//    }
 
     
     func initConstraints() {
@@ -65,11 +65,11 @@ class MainScreenView: UIView {
             signInButton.widthAnchor.constraint(equalToConstant: 286),
             signInButton.heightAnchor.constraint(equalToConstant: 55),
             
-            // Center the add account button
-            addAccountButton.centerXAnchor.constraint(equalTo: self.centerXAnchor),
-            addAccountButton.topAnchor.constraint(equalTo: signInButton.bottomAnchor, constant: 20),
-            addAccountButton.widthAnchor.constraint(equalToConstant: 286),
-            addAccountButton.heightAnchor.constraint(equalToConstant: 55)
+//            // Center the add account button
+//            addAccountButton.centerXAnchor.constraint(equalTo: self.centerXAnchor),
+//            addAccountButton.topAnchor.constraint(equalTo: signInButton.bottomAnchor, constant: 20),
+//            addAccountButton.widthAnchor.constraint(equalToConstant: 286),
+//            addAccountButton.heightAnchor.constraint(equalToConstant: 55)
         ])
     }
 

@@ -10,17 +10,28 @@ import UIKit
 import FirebaseAuth
 import FirebaseFirestore
 
-class ViewController: UIViewController {
-    let mainScreen = MainScreenView()
-    let notificationCenter = NotificationCenter.default
-    var currentUser: FirebaseAuth.User?
-    var handleAuth: AuthStateDidChangeListenerHandle?
-    let database = Firestore.firestore()
+class ViewController: UIViewController, AddAccountDelegate {
+    
 
+      let notificationCenter = NotificationCenter.default
+      var currentUser: FirebaseAuth.User?
+      var handleAuth: AuthStateDidChangeListenerHandle?
+      let database = Firestore.firestore()
+    
+    
+    func didCompleteAccountCreation() {
+        let medMainVC = MedMainViewController()  // Initialize your MedMainViewController
+                navigationController?.pushViewController(medMainVC, animated: true)
+//                print("Account creation was successful!") <#code#>
+    }
+    
+    
+    let mainScreen = MainScreenView()
+    
     override func loadView() {
         view = mainScreen
-        
     }
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         
@@ -28,12 +39,12 @@ class ViewController: UIViewController {
         navigationController?.navigationBar.prefersLargeTitles = true
         
         mainScreen.signInButton.addTarget(self, action: #selector(signInTapped), for: .touchUpInside)
-        
-        mainScreen.addAccountButton.addTarget(self, action: #selector(addAccountTapped), for: .touchUpInside)
-        
-   
     }
-    
+
+    @objc func signInTapped(){
+        presentLoginScreen()
+    }
+
     func presentLoginScreen() {
         let signInAlert = UIAlertController(
             title: "Welcome",
@@ -59,6 +70,7 @@ class ViewController: UIViewController {
         
         let registerAction = UIAlertAction(title: "Register", style: .default) { [weak self] _ in
             let addAccountVC = AddAccountViewController()
+            addAccountVC.delegate = self  // Set ViewController as delegate
             self?.navigationController?.pushViewController(addAccountVC, animated: true)
         }
         
@@ -67,8 +79,8 @@ class ViewController: UIViewController {
         
         self.present(signInAlert, animated: true)
     }
+    
     func signInToFirebase(email: String, password: String) {
-        // Check if email and password are not empty
         guard !email.isEmpty, !password.isEmpty else {
             showAlert(message: "Please enter your email and password.") { [weak self] _ in
                 self?.presentLoginScreen()
@@ -84,8 +96,10 @@ class ViewController: UIViewController {
                 return
             }
             self?.notificationCenter.post(name: .userLoggedin, object: nil)
+            self?.navigateToMedMainView()
         }
     }
+    
     func showAlert(message: String, completionHandler: ((UIAlertAction) -> Void)? = nil) {
         let alert = UIAlertController(
             title: "Error",
@@ -95,14 +109,16 @@ class ViewController: UIViewController {
         alert.addAction(UIAlertAction(title: "OK", style: .default, handler: completionHandler))
         present(alert, animated: true)
     }
-    @objc func signInTapped(){
-        
-        presentLoginScreen()
-        
-    }
     
-    @objc func addAccountTapped(){
-        
+    func navigateToMedMainView() {
+        let medMainVC = MedMainViewController()  // Replace with your MedMainViewController
+        navigationController?.pushViewController(medMainVC, animated: true)
+    }
+
+    // AddAccountDelegate method
+    func didAddAccount() {
+        let medMainVC = MedMainViewController()  // Initialize your MedMainViewController
+        navigationController?.pushViewController(medMainVC, animated: true)
+        print("Account creation was successful!")
     }
 }
-

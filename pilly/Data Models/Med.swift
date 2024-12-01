@@ -11,10 +11,12 @@ struct Med {
     var title: String?
     var dosage: String?
     var time: String?
+    var isChecked: Bool
     
-    init(title: String? = nil, dosage: String? = nil, time: String? = nil){
+    init(title: String? = nil, dosage: String? = nil, time: String? = nil, isChecked: Bool = false){
         self.title = title
         self.dosage = dosage
         self.time = time
+        self.isChecked = isChecked
     }
 }

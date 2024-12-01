@@ -45,12 +45,16 @@ extension AddAccountViewController {
                 return
             }
             
+            
+            
             // Set user's display name
             self.setNameOfTheUserInFirebaseAuth(name: name)
             
             // Create user document in Firestore
             let newUser = User(name: name, email: email.lowercased())
             self.addNewUserToFirestore(newUser: newUser)
+            
+            self.delegate?.didCompleteAccountCreation()
         }
     }
     
