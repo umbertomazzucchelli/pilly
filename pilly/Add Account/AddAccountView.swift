@@ -34,6 +34,7 @@ class AddAccountView: UIView {
         textField.borderStyle = .roundedRect
         textField.backgroundColor = .systemBackground
         textField.isSecureTextEntry = true
+        textField.textContentType = nil
         return textField
     }()
     

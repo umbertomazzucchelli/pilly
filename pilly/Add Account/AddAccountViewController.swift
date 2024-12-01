@@ -9,17 +9,24 @@ import UIKit
 import FirebaseAuth
 import FirebaseFirestore
 import Combine
+import PhotosUI
 
+// Define the protocol for delegation
+protocol AddAccountDelegate: AnyObject {
+    func didCompleteAccountCreation()
+//    func didAddAccount()
+}
 
 class AddAccountViewController: UIViewController {
-    
+
     let addView = AddAccountView()
     let childProgressView = ProgressSpinnerViewController()
     let database = Firestore.firestore()
     let notificationCenter = NotificationCenter.default
 
+    var pickedImage: UIImage?
+    weak var delegate: AddAccountDelegate? // Use weak reference to avoid retain cycle
 
-    
     override func loadView() {
         view = addView
     }
@@ -30,8 +37,9 @@ class AddAccountViewController: UIViewController {
         // Add target for register button
         addView.createAccountButton.addTarget(self, action: #selector(onCreateAccountButton), for: .touchUpInside)
         setupNavigation()
+        addView.profileImageButton.menu = getMenuImagePicker()
     }
-    
+
     @objc func onCreateAccountButton() {
         // Validate inputs
         guard validateName(addView.nameTextField),
@@ -44,7 +52,38 @@ class AddAccountViewController: UIViewController {
         // Start registration process
         addNewAccount()
     }
-    
+
+    func getMenuImagePicker() -> UIMenu {
+        let menuItems = [
+            UIAction(title: "Camera", handler: { (_) in
+                self.pickUsingCamera()
+            }),
+            UIAction(title: "Gallery", handler: { (_) in
+                self.pickPhotoFromGallery()
+            })
+        ]
+        
+        return UIMenu(title: "Select source", children: menuItems)
+    }
+
+    func pickUsingCamera() {
+        let cameraController = UIImagePickerController()
+        cameraController.sourceType = .camera
+        cameraController.allowsEditing = true
+        cameraController.delegate = self
+        present(cameraController, animated: true)
+    }
+
+    func pickPhotoFromGallery() {
+        var configuration = PHPickerConfiguration()
+        configuration.filter = PHPickerFilter.any(of: [.images])
+        configuration.selectionLimit = 1
+        
+        let photoPicker = PHPickerViewController(configuration: configuration)
+        photoPicker.delegate = self
+        present(photoPicker, animated: true, completion: nil)
+    }
+
     func validateName(_ textField: UITextField) -> Bool {
         guard let name = textField.text, !name.isEmpty else {
             showAlert(message: "Name is required.")
@@ -68,15 +107,14 @@ class AddAccountViewController: UIViewController {
         }
         return true
     }
+
     func validatePhone(_ textField: UITextField) -> Bool {
         guard let phone = textField.text, !phone.isEmpty, phone.count >= 10 else {
             showAlert(message: "Phone number must be 10 characters long.")
             return false
         }
         return true
-        
     }
-    
 
     func isValidEmail(_ email: String) -> Bool {
         let emailRegex = "[A-Z0-9a-z._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,64}"
@@ -92,12 +130,31 @@ class AddAccountViewController: UIViewController {
         alert.addAction(UIAlertAction(title: "OK", style: .default))
         self.present(alert, animated: true)
     }
-        
+
     private func setupNavigation() {
         title = "Add New Account"
-        // This ensures the navigation bar is visible
         navigationController?.navigationBar.isHidden = false
-        // This removes the "Back" text and just shows the arrow
         navigationItem.backButtonDisplayMode = .minimal
     }
+
+//    func addNewAccount() {
+//        guard let email = addView.emailTextField.text,
+//              let password = addView.passwordTextField.text else { return }
+//
+//        Auth.auth().createUser(withEmail: email, password: password) { [weak self] authResult, error in
+//            guard let self = self else { return }
+//            
+//            if let error = error {
+//                self.showAlert(message: error.localizedDescription)
+//                return
+//            }
+//
+//            // Notify the delegate of success
+//            self.delegate?.didCompleteAccountCreation()
+//
+//            // Optionally pop back to the previous screen
+//            self.navigationController?.popViewController(animated: true)
+//        }
+//    }
 }
+
