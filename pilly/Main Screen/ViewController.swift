@@ -10,7 +10,8 @@ import UIKit
 import FirebaseAuth
 import FirebaseFirestore
 
-class ViewController: UIViewController, AddAccountDelegate {
+class ViewController: UIViewController, AddAccountDelegate, AddMedDelegate {
+ 
     
 
       let notificationCenter = NotificationCenter.default
@@ -18,19 +19,60 @@ class ViewController: UIViewController, AddAccountDelegate {
       var handleAuth: AuthStateDidChangeListenerHandle?
       let database = Firestore.firestore()
     
-    
-    func didCompleteAccountCreation() {
-        let medMainVC = MedMainViewController()  // Initialize your MedMainViewController
-                navigationController?.pushViewController(medMainVC, animated: true)
-//                print("Account creation was successful!") <#code#>
-    }
-    
-    
-    let mainScreen = MainScreenView()
+    var medList = [Med]()
+    var mainScreenView = MainScreenView()
+    var medListView = MedListView()
+        
     
     override func loadView() {
-        view = mainScreen
+        if Auth.auth().currentUser == nil {
+            view = mainScreenView
+        } else {
+            view = medListView
+        }
     }
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        
+        // Set up authentication listener
+        handleAuth = Auth.auth().addStateDidChangeListener{ [weak self] auth, user in
+            guard let self = self else { return }
+            
+            if user == nil {
+                // User is not logged in, present login screen
+                self.currentUser = nil
+                self.medListView.meds.removeAll()
+                self.medListView.tableViewMed.reloadData()
+                self.presentLoginScreen()
+            } else {
+                // User is logged in
+                self.currentUser = user
+                self.title = "Meds"
+                self.setupRightBarButton(isLoggedin: true)
+                self.switchToMedListView()
+                          
+//                self.observeMeds()
+            }
+        }
+    }
+    private func switchToMainScreenView() {
+           DispatchQueue.main.async {
+               self.view = self.mainScreenView
+               self.medListView.tableViewMed.isHidden = true
+           }
+       }
+    private func switchToMedListView() {
+           DispatchQueue.main.async {
+               self.view = self.medListView
+               self.medListView.tableViewMed.isHidden = false
+           }
+       }
+    override func viewWillDisappear(_ animated: Bool) {
+           super.viewWillDisappear(animated)
+           if let handle = handleAuth {
+               Auth.auth().removeStateDidChangeListener(handle)
+           }
+       }
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -38,11 +80,53 @@ class ViewController: UIViewController, AddAccountDelegate {
         title = "Pilly"
         navigationController?.navigationBar.prefersLargeTitles = true
         
-        mainScreen.signInButton.addTarget(self, action: #selector(signInTapped), for: .touchUpInside)
+//        mainScreen.tableViewMed.delegate = self
+//        mainScreen.tableViewMed.dataSource = self
+        
+//        mainScreen.buttonAddMed.addTarget(self, action: #selector(newChatButtonTapped), for: .touchUpInside
+                                          
+        setupNotifications()
+        
+        mainScreenView.signInButton.addTarget(self, action: #selector(signInTapped), for: .touchUpInside)
+    }
+    
+    func setupNotifications() {
+//        notificationCenter.addObserver(
+//            self,
+//            selector: #selector(medsUpdated),
+//            name: .medsUpdated,
+//            object: nil
+//        )
+        
+       
+    }
+    
+    func didCompleteAccountCreation() {
+        let medMainVC = HomeViewController()  // Initialize your MedMainViewController
+                navigationController?.pushViewController(medMainVC, animated: true)
+//                print("Account creation was successful!") <#code#>
     }
 
     @objc func signInTapped(){
         presentLoginScreen()
+    }
+    
+    func setupRightBarButton(isLoggedin: Bool) {
+        if isLoggedin {
+            let logoutButton = UIBarButtonItem(title: "Logout", style: .plain, target: self, action: #selector(logoutTapped))
+            navigationItem.rightBarButtonItem = logoutButton
+        } else {
+            navigationItem.rightBarButtonItem = nil
+        }
+    }
+    
+    @objc func logoutTapped() {
+        do {
+            try Auth.auth().signOut()
+            notificationCenter.post(name: .userLoggedout, object: nil)
+        } catch {
+            showAlert(message: "Error signing out")
+        }
     }
 
     func presentLoginScreen() {
@@ -96,7 +180,6 @@ class ViewController: UIViewController, AddAccountDelegate {
                 return
             }
             self?.notificationCenter.post(name: .userLoggedin, object: nil)
-            self?.navigateToMedMainView()
         }
     }
     
@@ -110,15 +193,89 @@ class ViewController: UIViewController, AddAccountDelegate {
         present(alert, animated: true)
     }
     
-    func navigateToMedMainView() {
-        let medMainVC = MedMainViewController()  // Replace with your MedMainViewController
-        navigationController?.pushViewController(medMainVC, animated: true)
+    func observeThreads() {
+        
+    }
+    
+//    func navigateToMedMainView() {
+//        let medMainVC = MedMainViewController()  // Replace with your MedMainViewController
+//        navigationController?.pushViewController(medMainVC, animated: true)
+//    }
+//
+//    // AddAccountDelegate method
+//    func didAddAccount() {
+//        let medMainVC = MedMainViewController()  // Initialize your MedMainViewController
+//        navigationController?.pushViewController(medMainVC, animated: true)
+//        print("Account creation was successful!")
+//    }
+    
+    func delegateAddMed(med: Med){
+        guard let currentUser = Auth.auth().currentUser else {
+               showAlert(message: "User is not logged in.") { [weak self] _ in
+                   self?.presentLoginScreen()
+               }
+               return
+           }
+
+           // Save medication to Firestore
+        saveMedicationToFirestore(med: med, userId: currentUser.uid)
+
+           // Show success message
+//           showAlert(message: "Medication added successfully!") { [weak self] _ in
+//               self?.navigateToMedMainView() // Optionally navigate back to the med list screen
+//           }
+        
+    }
+    
+    func delegateOnAddMed(med: Med) {
+        guard let currentUser = Auth.auth().currentUser else {
+                    showAlert(message: "User is not logged in.") { [weak self] _ in
+                        self?.presentLoginScreen()
+                    }
+                    return
+                }
+                
+                saveMedicationToFirestore(med: med, userId: currentUser.uid)
+        
+    }
+    
+    func saveMedicationToFirestore(med: Med, userId: String) {
+        let medicationData: [String: Any] = [
+            "title": med.title ?? "",
+            "dosage": med.dosage ?? "",
+            "time": med.time
+        ]
+        
+        // Save medication under the user's document
+        let userDocRef = database.collection("users").document(userId)
+        userDocRef.updateData([
+            "medications": FieldValue.arrayUnion([medicationData])
+        ]) { error in
+            if let error = error {
+                self.showAlert(message: "Failed to save medication: \(error.localizedDescription)")
+            } else {
+                print("Medication saved successfully under user ID: \(userId)")
+            }
+        }
     }
 
-    // AddAccountDelegate method
-    func didAddAccount() {
-        let medMainVC = MedMainViewController()  // Initialize your MedMainViewController
-        navigationController?.pushViewController(medMainVC, animated: true)
-        print("Account creation was successful!")
-    }
 }
+extension ViewController: UITableViewDelegate, UITableViewDataSource {
+    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        return medList.count
+    }
+    
+    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) ->
+    UITableViewCell {
+            let cell = tableView.dequeueReusableCell(
+                withIdentifier: TableViewMedCell.identifier,
+                for: indexPath) as! TableViewMedCell
+            
+            let med = medList[indexPath.row]
+            cell.configure(with: med )
+            
+            return cell
+        }
+        
+}
+

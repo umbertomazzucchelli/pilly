@@ -12,7 +12,7 @@ class AddMedView: UIView {
     var textFieldTitle: UITextField!
     var textFieldDosage: UITextField!
     var labelTime: UILabel!
-    var pickerTime: UIPickerView!
+    var pickerTime: UIDatePicker!
     var buttonAdd: UIButton!
     
     override init(frame: CGRect){
@@ -55,11 +55,14 @@ class AddMedView: UIView {
         self.addSubview(labelTime)
     }
     
-    func setupPickerTime(){
-        pickerTime = UIPickerView()
+    func setupPickerTime() {
+        pickerTime = UIDatePicker()
+        pickerTime.datePickerMode = .time
+        pickerTime.preferredDatePickerStyle = .wheels
         pickerTime.translatesAutoresizingMaskIntoConstraints = false
         self.addSubview(pickerTime)
     }
+
     
     func setupButtonAdd(){
         buttonAdd = UIButton(type: .system)
