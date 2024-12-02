@@ -8,6 +8,7 @@
 import UIKit
 
 class TableViewMedCell: UITableViewCell {
+    static let identifier = "TableViewMedCell"
     var backgroundCardView: UIView!
     var labelTitle: UILabel!
     var labelDosage: UILabel!

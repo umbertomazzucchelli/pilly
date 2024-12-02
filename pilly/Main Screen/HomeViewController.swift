@@ -1,13 +1,14 @@
 //
-//  MedMainViewController.swift
+//  HomeViewController.swift
 //  pilly
 //
-//  Created by Belen Tesfaye on 11/27/24.
+//  Created by Belen Tesfaye on 12/1/24.
 //
 
 import UIKit
 
-class MedMainViewController: UIViewController {
+class HomeViewController: UIViewController {
+
     var medListView: MedListView!
     
     override func viewDidLoad() {

@@ -12,7 +12,7 @@ class MainTabBarController: UITabBarController {
         // Create view controllers for each tab
         let homeVC = UINavigationController(rootViewController: HomeViewController())
         let calendarVC = UINavigationController(rootViewController: CalendarViewController())
-        let medicationsVC = UINavigationController(rootViewController: MedListViewController())
+        let medicationsVC = UINavigationController(rootViewController: AddMedViewController())
         let profileVC = UINavigationController(rootViewController: ProfileViewController())
         
         // Configure tab bar items
