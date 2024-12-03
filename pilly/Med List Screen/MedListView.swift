@@ -8,7 +8,7 @@
 
 import UIKit
 
-class MedListView: UIView, UITableViewDelegate, UITableViewDataSource, AddMedDelegate {
+class MedListView: UIView, UITableViewDelegate {
     var tableViewMed: UITableView!
     var dateLabel: UILabel!
     var welcomeLabel: UILabel!
@@ -27,8 +27,6 @@ class MedListView: UIView, UITableViewDelegate, UITableViewDataSource, AddMedDel
         setupSearchBar()
         initConstraints()
         
-        // Load Sample Data
-        loadData()
     }
     
     
@@ -40,8 +38,7 @@ class MedListView: UIView, UITableViewDelegate, UITableViewDataSource, AddMedDel
         tableViewMed = UITableView()
         tableViewMed.register(TableViewMedCell.self, forCellReuseIdentifier: "meds")
         tableViewMed.translatesAutoresizingMaskIntoConstraints = false
-        tableViewMed.delegate = self
-        tableViewMed.dataSource = self
+
         self.addSubview(tableViewMed)
     }
     
@@ -104,47 +101,4 @@ class MedListView: UIView, UITableViewDelegate, UITableViewDataSource, AddMedDel
         ])
     }
 
-
-    
-    // MARK: - UITableViewDataSource Methods
-    
-    func delegateOnAddMed(med: Med) {
-           addNewMed(med: med)
-       }
-    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return meds.count
-    }
-    
-    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        guard let cell = tableView.dequeueReusableCell(withIdentifier: "meds", for: indexPath) as? TableViewMedCell else {
-            return UITableViewCell()
-        }
-        
-        let med = meds[indexPath.row]
-        cell.configure(with: med)
-        
-        // Handle checklist toggle
-        cell.onChecklistToggle = { [weak self] in
-            guard let self = self else { return }
-            self.meds[indexPath.row].isChecked.toggle()
-            self.tableViewMed.reloadRows(at: [indexPath], with: .none)
-        }
-        
-        return cell
-    }
-    
-    // MARK: - Sample Data
-    func loadData() {
-        meds = [
-            Med(title: "Paracetamol", dosage: "500mg", time: "8:00 AM"),
-            Med(title: "Ibuprofen", dosage: "200mg", time: "2:00 PM"),
-            Med(title: "Aspirin", dosage: "100mg", time: "10:00 PM")
-        ]
-        tableViewMed.reloadData()
-    }
-    
-    func addNewMed(med: Med) {
-           meds.append(med)
-           tableViewMed.reloadData()
-       }
 }

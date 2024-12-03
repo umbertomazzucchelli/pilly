@@ -34,6 +34,6 @@ class HomeViewController: UIViewController {
         ])
         
         // Load sample data
-        medListView.loadData()
+
     }
 }

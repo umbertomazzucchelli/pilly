@@ -10,7 +10,7 @@ import UIKit
 import FirebaseAuth
 import FirebaseFirestore
 
-class ViewController: UIViewController, AddAccountDelegate, AddMedDelegate {
+class ViewController: UIViewController, AddAccountDelegate {
  
     
 
@@ -22,6 +22,8 @@ class ViewController: UIViewController, AddAccountDelegate, AddMedDelegate {
     var medList = [Med]()
     var mainScreenView = MainScreenView()
     var medListView = MedListView()
+    
+    var testAddmed = AddMedView()
         
     
     override func loadView() {
@@ -80,27 +82,8 @@ class ViewController: UIViewController, AddAccountDelegate, AddMedDelegate {
         title = "Pilly"
         navigationController?.navigationBar.prefersLargeTitles = true
         
-//        mainScreen.tableViewMed.delegate = self
-//        mainScreen.tableViewMed.dataSource = self
-        
-//        mainScreen.buttonAddMed.addTarget(self, action: #selector(newChatButtonTapped), for: .touchUpInside
-                                          
-        setupNotifications()
-        
         mainScreenView.signInButton.addTarget(self, action: #selector(signInTapped), for: .touchUpInside)
     }
-    
-    func setupNotifications() {
-//        notificationCenter.addObserver(
-//            self,
-//            selector: #selector(medsUpdated),
-//            name: .medsUpdated,
-//            object: nil
-//        )
-        
-       
-    }
-    
     func didCompleteAccountCreation() {
         let medMainVC = HomeViewController()  // Initialize your MedMainViewController
                 navigationController?.pushViewController(medMainVC, animated: true)
@@ -196,19 +179,6 @@ class ViewController: UIViewController, AddAccountDelegate, AddMedDelegate {
     func observeThreads() {
         
     }
-    
-//    func navigateToMedMainView() {
-//        let medMainVC = MedMainViewController()  // Replace with your MedMainViewController
-//        navigationController?.pushViewController(medMainVC, animated: true)
-//    }
-//
-//    // AddAccountDelegate method
-//    func didAddAccount() {
-//        let medMainVC = MedMainViewController()  // Initialize your MedMainViewController
-//        navigationController?.pushViewController(medMainVC, animated: true)
-//        print("Account creation was successful!")
-//    }
-    
     func delegateAddMed(med: Med){
         guard let currentUser = Auth.auth().currentUser else {
                showAlert(message: "User is not logged in.") { [weak self] _ in
@@ -216,14 +186,8 @@ class ViewController: UIViewController, AddAccountDelegate, AddMedDelegate {
                }
                return
            }
-
-           // Save medication to Firestore
+        
         saveMedicationToFirestore(med: med, userId: currentUser.uid)
-
-           // Show success message
-//           showAlert(message: "Medication added successfully!") { [weak self] _ in
-//               self?.navigateToMedMainView() // Optionally navigate back to the med list screen
-//           }
         
     }
     
@@ -234,8 +198,11 @@ class ViewController: UIViewController, AddAccountDelegate, AddMedDelegate {
                     }
                     return
                 }
+        medList.append(med)
+        medListView.tableViewMed.reloadData()
+        
                 
-                saveMedicationToFirestore(med: med, userId: currentUser.uid)
+        saveMedicationToFirestore(med: med, userId: currentUser.uid)
         
     }
     
@@ -243,7 +210,7 @@ class ViewController: UIViewController, AddAccountDelegate, AddMedDelegate {
         let medicationData: [String: Any] = [
             "title": med.title ?? "",
             "dosage": med.dosage ?? "",
-            "time": med.time
+            "time": med.time as Any
         ]
         
         // Save medication under the user's document
