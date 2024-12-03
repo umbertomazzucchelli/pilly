@@ -27,10 +27,10 @@ extension AddAccountViewController {
             return
           }
         
-        guard let phone = addView.phoneTextField.text, !password.isEmpty else {
-          showAlert(message: "Please enter a phone number.")
-          return
-        }
+//        guard let phone = addView.phoneTextField.text, !password.isEmpty else {
+//          showAlert(message: "Please enter a phone number.")
+//          return
+//        }
         
         // Show progress indicator
         showActivityIndicator()
