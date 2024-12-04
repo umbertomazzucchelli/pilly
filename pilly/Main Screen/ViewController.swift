@@ -11,89 +11,72 @@ import FirebaseAuth
 import FirebaseFirestore
 
 class ViewController: UIViewController, AddAccountDelegate {
- 
     
-
-      let notificationCenter = NotificationCenter.default
-      var currentUser: FirebaseAuth.User?
-      var handleAuth: AuthStateDidChangeListenerHandle?
-      let database = Firestore.firestore()
+    let notificationCenter = NotificationCenter.default
+    var currentUser: FirebaseAuth.User?
+    var handleAuth: AuthStateDidChangeListenerHandle?
+    let database = Firestore.firestore()
     
     var medList = [Med]()
     var mainScreenView = MainScreenView()
     var medListView = MedListView()
     
-    var testAddmed = AddMedView()
-        
-    
     override func loadView() {
-        if Auth.auth().currentUser == nil {
-            view = mainScreenView
-        } else {
-            view = medListView
-        }
+        view = mainScreenView
     }
+
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         
-        // Set up authentication listener
-        handleAuth = Auth.auth().addStateDidChangeListener{ [weak self] auth, user in
+        handleAuth = Auth.auth().addStateDidChangeListener { [weak self] auth, user in
             guard let self = self else { return }
             
             if user == nil {
-                // User is not logged in, present login screen
+                // User is logged out
                 self.currentUser = nil
-                self.medListView.meds.removeAll()
-                self.medListView.tableViewMed.reloadData()
                 self.presentLoginScreen()
             } else {
                 // User is logged in
                 self.currentUser = user
-                self.title = "Meds"
-                self.setupRightBarButton(isLoggedin: true)
                 self.switchToMedListView()
-                          
-//                self.observeMeds()
+                self.switchToMainTabBar()
             }
         }
     }
-    private func switchToMainScreenView() {
-           DispatchQueue.main.async {
-               self.view = self.mainScreenView
-               self.medListView.tableViewMed.isHidden = true
-           }
-       }
-    private func switchToMedListView() {
-           DispatchQueue.main.async {
-               self.view = self.medListView
-               self.medListView.tableViewMed.isHidden = false
-           }
-       }
+
     override func viewWillDisappear(_ animated: Bool) {
-           super.viewWillDisappear(animated)
-           if let handle = handleAuth {
-               Auth.auth().removeStateDidChangeListener(handle)
-           }
-       }
-    
-    override func viewDidLoad() {
-        super.viewDidLoad()
-        
-        title = "Pilly"
-        navigationController?.navigationBar.prefersLargeTitles = true
-        
-        mainScreenView.signInButton.addTarget(self, action: #selector(signInTapped), for: .touchUpInside)
-    }
-    func didCompleteAccountCreation() {
-        let medMainVC = HomeViewController()  // Initialize your MedMainViewController
-                navigationController?.pushViewController(medMainVC, animated: true)
-//                print("Account creation was successful!") <#code#>
+        super.viewWillDisappear(animated)
+        if let handleAuth = handleAuth {
+            Auth.auth().removeStateDidChangeListener(handleAuth)
+        }
     }
 
-    @objc func signInTapped(){
-        presentLoginScreen()
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        medListView.frame = self.view.bounds
+        navigationController?.navigationBar.prefersLargeTitles = true
     }
     
+    func didCompleteAccountCreation() {
+        let medMainVC = HomeViewController() // Update with correct controller
+        navigationController?.pushViewController(medMainVC, animated: true)
+    }
+
+    func switchToMainTabBar() {
+        DispatchQueue.main.async {
+            guard !(self.view.window?.rootViewController is MainTabBarController) else { return }
+            let mainTabBarController = MainTabBarController()
+            self.view.window?.rootViewController = mainTabBarController
+            self.view.window?.makeKeyAndVisible()
+        }
+    }
+    
+    func switchToMedListView() {
+        let medVC = HomeViewController()
+        navigationController?.pushViewController(medVC, animated: true)
+//        view = medListView
+    }
+
     func setupRightBarButton(isLoggedin: Bool) {
         if isLoggedin {
             let logoutButton = UIBarButtonItem(title: "Logout", style: .plain, target: self, action: #selector(logoutTapped))
@@ -106,7 +89,13 @@ class ViewController: UIViewController, AddAccountDelegate {
     @objc func logoutTapped() {
         do {
             try Auth.auth().signOut()
-            notificationCenter.post(name: .userLoggedout, object: nil)
+            
+            DispatchQueue.main.async {
+                let mainVC = ViewController()
+                let navigationController = UINavigationController(rootViewController: mainVC)
+                self.view.window?.rootViewController = navigationController
+                self.view.window?.makeKeyAndVisible()
+            }
         } catch {
             showAlert(message: "Error signing out")
         }
@@ -129,24 +118,22 @@ class ViewController: UIViewController, AddAccountDelegate {
         }
         
         let signInAction = UIAlertAction(title: "Sign In", style: .default) { [weak self] _ in
-            if let email = signInAlert.textFields?[0].text,
-               let password = signInAlert.textFields?[1].text {
-                self?.signInToFirebase(email: email, password: password)
-            }
+            guard let email = signInAlert.textFields?[0].text,
+                  let password = signInAlert.textFields?[1].text else { return }
+            self?.signInToFirebase(email: email, password: password)
         }
         
         let registerAction = UIAlertAction(title: "Register", style: .default) { [weak self] _ in
             let addAccountVC = AddAccountViewController()
-            addAccountVC.delegate = self  // Set ViewController as delegate
+            addAccountVC.delegate = self
             self?.navigationController?.pushViewController(addAccountVC, animated: true)
         }
         
         signInAlert.addAction(signInAction)
         signInAlert.addAction(registerAction)
-        
-        self.present(signInAlert, animated: true)
+        present(signInAlert, animated: true)
     }
-    
+
     func signInToFirebase(email: String, password: String) {
         guard !email.isEmpty, !password.isEmpty else {
             showAlert(message: "Please enter your email and password.") { [weak self] _ in
@@ -162,10 +149,10 @@ class ViewController: UIViewController, AddAccountDelegate {
                 }
                 return
             }
-            self?.notificationCenter.post(name: .userLoggedin, object: nil)
+            self?.switchToMainTabBar()
         }
     }
-    
+
     func showAlert(message: String, completionHandler: ((UIAlertAction) -> Void)? = nil) {
         let alert = UIAlertController(
             title: "Error",
@@ -175,37 +162,20 @@ class ViewController: UIViewController, AddAccountDelegate {
         alert.addAction(UIAlertAction(title: "OK", style: .default, handler: completionHandler))
         present(alert, animated: true)
     }
-    
-    func observeThreads() {
-        
-    }
-    func delegateAddMed(med: Med){
-        guard let currentUser = Auth.auth().currentUser else {
-               showAlert(message: "User is not logged in.") { [weak self] _ in
-                   self?.presentLoginScreen()
-               }
-               return
-           }
-        
-        saveMedicationToFirestore(med: med, userId: currentUser.uid)
-        
-    }
-    
+
     func delegateOnAddMed(med: Med) {
         guard let currentUser = Auth.auth().currentUser else {
-                    showAlert(message: "User is not logged in.") { [weak self] _ in
-                        self?.presentLoginScreen()
-                    }
-                    return
-                }
+            showAlert(message: "User is not logged in.") { [weak self] _ in
+                self?.presentLoginScreen()
+            }
+            return
+        }
+        
         medList.append(med)
         medListView.tableViewMed.reloadData()
-        
-                
         saveMedicationToFirestore(med: med, userId: currentUser.uid)
-        
     }
-    
+
     func saveMedicationToFirestore(med: Med, userId: String) {
         let medicationData: [String: Any] = [
             "title": med.title ?? "",
@@ -213,7 +183,6 @@ class ViewController: UIViewController, AddAccountDelegate {
             "time": med.time as Any
         ]
         
-        // Save medication under the user's document
         let userDocRef = database.collection("users").document(userId)
         userDocRef.updateData([
             "medications": FieldValue.arrayUnion([medicationData])
@@ -225,24 +194,4 @@ class ViewController: UIViewController, AddAccountDelegate {
             }
         }
     }
-
 }
-extension ViewController: UITableViewDelegate, UITableViewDataSource {
-    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return medList.count
-    }
-    
-    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) ->
-    UITableViewCell {
-            let cell = tableView.dequeueReusableCell(
-                withIdentifier: TableViewMedCell.identifier,
-                for: indexPath) as! TableViewMedCell
-            
-            let med = medList[indexPath.row]
-            cell.configure(with: med )
-            
-            return cell
-        }
-        
-}
-

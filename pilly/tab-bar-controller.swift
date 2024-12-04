@@ -1,49 +1,52 @@
 import UIKit
 
 class MainTabBarController: UITabBarController {
-    
+
+    // Declare your view controllers as properties
+    private let homeVC = HomeViewController()
+    private let calendarVC = CalendarViewController()
+    private let medicationsVC = AddMedViewController()
+    private var profileNavController: UINavigationController!
+
     override func viewDidLoad() {
         super.viewDidLoad()
+        
+        // Initialize profileVC and profileNavController after self is available
+        let profileVC = ProfileViewController()
+        profileNavController = UINavigationController(rootViewController: profileVC)
+
         setupTabs()
         setupTabBarAppearance()
     }
-    
+
     private func setupTabs() {
-        // Create view controllers for each tab
-        let homeVC = UINavigationController(rootViewController: HomeViewController())
-        let calendarVC = UINavigationController(rootViewController: CalendarViewController())
-        let medicationsVC = UINavigationController(rootViewController: AddMedViewController())
-        let profileVC = UINavigationController(rootViewController: ProfileViewController())
-        
-        // Configure tab bar items
         homeVC.tabBarItem = UITabBarItem(
             title: "Home",
             image: UIImage(systemName: "house"),
             selectedImage: UIImage(systemName: "house.fill")
         )
-        
         calendarVC.tabBarItem = UITabBarItem(
             title: "Calendar",
             image: UIImage(systemName: "calendar"),
             selectedImage: UIImage(systemName: "calendar.fill")
         )
-        
         medicationsVC.tabBarItem = UITabBarItem(
             title: "Medications",
             image: UIImage(systemName: "pill"),
             selectedImage: UIImage(systemName: "pill.fill")
         )
         
-        profileVC.tabBarItem = UITabBarItem(
+        // Use profileNavController here
+        profileNavController.tabBarItem = UITabBarItem(
             title: "Profile",
             image: UIImage(systemName: "person"),
             selectedImage: UIImage(systemName: "person.fill")
         )
-        
-        // Set the view controllers
-        setViewControllers([homeVC, calendarVC, medicationsVC, profileVC], animated: false)
+
+        // Set the tab bar controllers
+        setViewControllers([homeVC, calendarVC, medicationsVC, profileNavController], animated: false)
     }
-    
+
     private func setupTabBarAppearance() {
         // Set the tab bar background color to match your design
         let appearance = UITabBarAppearance()

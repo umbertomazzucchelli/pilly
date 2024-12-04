@@ -12,9 +12,11 @@ struct User: Codable {
     @DocumentID var id: String?
     var name: String
     var email: String
-    
-    init(name: String, email: String) {
+    var phone: String? // Optional phone field
+
+    init(name: String, email: String, phone: String? = nil) {
         self.name = name
         self.email = email
+        self.phone = phone
     }
 }

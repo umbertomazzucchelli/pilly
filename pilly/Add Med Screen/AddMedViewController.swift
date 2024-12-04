@@ -78,7 +78,6 @@ class AddMedViewController: UIViewController {
     }
 
     
-    
     @objc func onAddButtonTapped() {
         let name = addMedScreen.textFieldTitle.text
         let dosageAmount = addMedScreen.textFieldDosage.text
@@ -88,6 +87,7 @@ class AddMedViewController: UIViewController {
         let timeFormatter = DateFormatter()
         timeFormatter.dateFormat = "h:mm a"
         let formattedTime = timeFormatter.string(from: selectedTime)
+        print("Button tapped. Validating inputs...")
 
         // Validate inputs
         if let unwrappedName = name, let unwrappedDosageAmount = dosageAmount,
@@ -104,30 +104,33 @@ class AddMedViewController: UIViewController {
                     isChecked: false
                 )
                 
-                delegate.delegateOnAddMed(med: newMed)
-                navigationController?.popViewController(animated: true)
-                showAlert(message: "Success.")
-
+                // Proceed with saving medication only if inputs are valid
                 saveMedicationToDatabase(med: newMed) { [weak self] success in
-                    if success {
-                        self?.delegate?.delegateOnAddMed(med: newMed)
-                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
-                            self?.showSuccessAlert()
+                    DispatchQueue.main.async {
+                        if success {
+                            // Only call delegate and show success alert if saving is successful
+                            self?.delegate?.delegateOnAddMed(med: newMed)
+                            self?.showSuccessAlert(message: "Success to save medication to database.") // Updated
+                            self?.clearFormFields()
+                            
+                            self?.navigationController?.popViewController(animated: true)
+                        } else {
+                            // If saving fails, show an error
+                            self?.showAlert(message: "Failed to save medication to database.")
                         }
-                        self?.clearFormFields()
-                        
-                        self?.navigationController?.popViewController(animated: true)
-                        self?.showAlert(message: "Success.")
-                    }
-                    else {
-                        print("Failed to save medication to database")
                     }
                 }
             } else {
-                showAlert(message: "Please fill in all fields.")
+                // Show input error if fields are empty
+                DispatchQueue.main.async {
+                    self.showAlert(message: "Please fill in all fields.")
+                }
             }
         } else {
-            showAlert(message: "Please select valid dosage and frequency.")
+            // Show error if dosage or frequency is invalid
+            DispatchQueue.main.async {
+                self.showAlert(message: "Please select valid dosage and frequency.")
+            }
         }
     }
 
@@ -136,31 +139,39 @@ class AddMedViewController: UIViewController {
         alert.addAction(UIAlertAction(title: "OK", style: .default, handler: nil))
         present(alert, animated: true, completion: nil)
     }
+    func showSuccessAlert(message: String) {
+        let alert = UIAlertController(title: "Success", message: message, preferredStyle: .alert)
+        alert.addAction(UIAlertAction(title: "OK", style: .default, handler: nil))
+        DispatchQueue.main.async {
+            self.present(alert, animated: true, completion: nil)
+        }
+    }
 
     func saveMedicationToDatabase(med: Med, completion: @escaping (Bool) -> Void) {
         guard let user = Auth.auth().currentUser else {
-            print("No user is logged in")
+            print("No user is logged in") // Log if the user is not logged in
             completion(false)
             return
         }
         
-        
         let medData: [String: Any] = [
             "title": med.title!,
             "amount": med.amount!,
-            "dosage": med.dosage?.rawValue as Any,  // Save as string
-            "frequency": med.frequency?.rawValue as Any,  // Save as string
+            "dosage": med.dosage?.rawValue as Any,
+            "frequency": med.frequency?.rawValue as Any,
             "time": med.time!,
             "isChecked": med.isChecked,
             "createdAt": FieldValue.serverTimestamp()
         ]
         
+        print("Attempting to save medication: \(medData)")  // Log what you're trying to save
+        
         db.collection("users").document(user.uid).collection("medications").addDocument(data: medData) { error in
             if let error = error {
-                print("Error saving medication: \(error.localizedDescription)")
+                print("Error saving medication: \(error.localizedDescription)") // Log Firestore error
                 completion(false)
             } else {
-                print("Medication successfully saved!")
+                print("Medication successfully saved!")  // Log successful save
                 completion(true)
             }
         }
