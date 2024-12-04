@@ -9,7 +9,7 @@ import UIKit
 
 class MainScreenView: UIView {
     var pillyLogo: UIImageView!
-    var signInButton: UIButton!
+//    var signInButton: UIButton!
     var addAccountButton: UIButton!
     
     override init(frame: CGRect) {
@@ -17,7 +17,7 @@ class MainScreenView: UIView {
         self.backgroundColor = .white
         
         setupLogo()
-        setupSignIn()
+//        setupSignIn()
 //        setupAddAccount()
         initConstraints()
     }
@@ -29,15 +29,15 @@ class MainScreenView: UIView {
         self.addSubview(pillyLogo)
     }
     
-    func setupSignIn() {
-        signInButton = UIButton(type: .system)
-        signInButton.setTitle("Sign in/Create an Account", for: .normal)
-        signInButton.backgroundColor = UIColor(red: 255/255, green: 116/255, blue: 108/255, alpha: 1) // #FF746C
-        signInButton.tintColor = .white // Text color for contrast
-        signInButton.layer.cornerRadius = 27.5
-        signInButton.translatesAutoresizingMaskIntoConstraints = false
-        self.addSubview(signInButton)
-    }
+//    func setupSignIn() {
+//        signInButton = UIButton(type: .system)
+//        signInButton.setTitle("Sign in/Create an Account", for: .normal)
+//        signInButton.backgroundColor = UIColor(red: 255/255, green: 116/255, blue: 108/255, alpha: 1) // #FF746C
+//        signInButton.tintColor = .white // Text color for contrast
+//        signInButton.layer.cornerRadius = 27.5
+//        signInButton.translatesAutoresizingMaskIntoConstraints = false
+//        self.addSubview(signInButton)
+//    }
 
     
 //    func setupAddAccount() {
@@ -55,15 +55,15 @@ class MainScreenView: UIView {
         NSLayoutConstraint.activate([
             // Center the logo
             pillyLogo.centerXAnchor.constraint(equalTo: self.centerXAnchor),
-            pillyLogo.topAnchor.constraint(equalTo: self.safeAreaLayoutGuide.topAnchor, constant: 100),
+            pillyLogo.topAnchor.constraint(equalTo: self.safeAreaLayoutGuide.topAnchor, constant: 32),
             pillyLogo.widthAnchor.constraint(equalToConstant: 218), // Adjust size based on Figma
             pillyLogo.heightAnchor.constraint(equalToConstant: 203),
             
-            // Center the sign-in button
-            signInButton.centerXAnchor.constraint(equalTo: self.centerXAnchor),
-            signInButton.topAnchor.constraint(equalTo: pillyLogo.bottomAnchor, constant: 50),
-            signInButton.widthAnchor.constraint(equalToConstant: 286),
-            signInButton.heightAnchor.constraint(equalToConstant: 55),
+//            // Center the sign-in button
+//            signInButton.centerXAnchor.constraint(equalTo: self.centerXAnchor),
+//            signInButton.topAnchor.constraint(equalTo: pillyLogo.bottomAnchor, constant: 50),
+//            signInButton.widthAnchor.constraint(equalToConstant: 286),
+//            signInButton.heightAnchor.constraint(equalToConstant: 55),
             
 //            // Center the add account button
 //            addAccountButton.centerXAnchor.constraint(equalTo: self.centerXAnchor),

@@ -7,11 +7,15 @@
 
 import UIKit
 
+
 class TableViewMedCell: UITableViewCell {
     static let identifier = "TableViewMedCell"
     var backgroundCardView: UIView!
     var labelTitle: UILabel!
+    var labelAmount: UILabel!  // Declare as optional or initialize properly
     var labelDosage: UILabel!
+    var labelFrequency: UILabel!
+    var labelTime: UILabel!
     var checkboxButton: UIButton!
     var isChecked: Bool = false
 
@@ -44,12 +48,28 @@ class TableViewMedCell: UITableViewCell {
         labelTitle.textColor = .black
         labelTitle.translatesAutoresizingMaskIntoConstraints = false
 
+        labelAmount = UILabel()  // Initialize labelAmount
+        labelAmount.font = UIFont.systemFont(ofSize: 14)
+        labelAmount.textColor = .darkGray
+        labelAmount.translatesAutoresizingMaskIntoConstraints = false
+        
         labelDosage = UILabel()
         labelDosage.font = UIFont.systemFont(ofSize: 14)
         labelDosage.textColor = .darkGray
         labelDosage.translatesAutoresizingMaskIntoConstraints = false
+        
+        labelFrequency = UILabel()
+        labelFrequency.font = UIFont.systemFont(ofSize: 14)
+        labelFrequency.textColor = .darkGray
+        labelFrequency.translatesAutoresizingMaskIntoConstraints = false
+        
+        labelTime = UILabel()  // Initialize labelAmount
+        labelTime.font = UIFont.systemFont(ofSize: 14)
+        labelTime.textColor = .darkGray
+        labelTime.translatesAutoresizingMaskIntoConstraints = false
 
         backgroundCardView.addSubview(labelTitle)
+        backgroundCardView.addSubview(labelAmount)  // Add to the background card view
         backgroundCardView.addSubview(labelDosage)
     }
 
@@ -93,7 +113,11 @@ class TableViewMedCell: UITableViewCell {
             labelTitle.leadingAnchor.constraint(equalTo: backgroundCardView.leadingAnchor, constant: 8),
             labelTitle.trailingAnchor.constraint(equalTo: backgroundCardView.trailingAnchor, constant: -8),
 
-            labelDosage.topAnchor.constraint(equalTo: labelTitle.bottomAnchor, constant: 4),
+            labelAmount.topAnchor.constraint(equalTo: labelTitle.bottomAnchor, constant: 4),
+            labelAmount.leadingAnchor.constraint(equalTo: labelTitle.leadingAnchor),
+            labelAmount.trailingAnchor.constraint(equalTo: labelTitle.trailingAnchor),
+
+            labelDosage.topAnchor.constraint(equalTo: labelAmount.bottomAnchor, constant: 4),
             labelDosage.leadingAnchor.constraint(equalTo: labelTitle.leadingAnchor),
             labelDosage.trailingAnchor.constraint(equalTo: labelTitle.trailingAnchor),
             labelDosage.bottomAnchor.constraint(equalTo: backgroundCardView.bottomAnchor, constant: -8),
@@ -114,21 +138,37 @@ extension TableViewMedCell {
         }
 
         labelTitle.text = title
-        labelDosage.text = "\(med.dosage) at \(med.time)"
+
+        // Check if med.dosage is a String or Dosage and handle accordingly
+        if let dosageString = med.dosage {
+            // If it's a String, convert it to Dosage enum and access the rawValue
+            if let dosage = Dosage(rawValue: dosageString.rawValue) {
+                labelDosage.text = dosage.rawValue  // Use rawValue of the Dosage enum
+            } else {
+                labelDosage.text = "Unknown dosage"  // Invalid dosage string
+            }
+        } else {
+            labelDosage.text = "Unknown dosage"  // If med.dosage is nil
+        }
+        
+        labelAmount.text = med.amount // Set the amount if needed
         checkboxButton.isSelected = med.isChecked
         isChecked = med.isChecked
 
         if med.isChecked {
             labelTitle.textColor = .gray
+            labelAmount.textColor = .gray
             labelDosage.textColor = .gray
             let attributeString: NSMutableAttributedString = NSMutableAttributedString(string: title)
             attributeString.addAttribute(.strikethroughStyle, value: NSUnderlineStyle.single.rawValue, range: NSMakeRange(0, attributeString.length))
             labelTitle.attributedText = attributeString
         } else {
             labelTitle.textColor = .black
+            labelAmount.textColor = .darkGray
             labelDosage.textColor = .darkGray
             labelTitle.attributedText = nil
             labelTitle.text = title
         }
     }
+
 }
