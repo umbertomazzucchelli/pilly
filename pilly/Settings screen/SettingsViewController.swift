@@ -3,30 +3,65 @@ import FirebaseAuth // Assuming you're using Firebase Auth for authentication
 
 class SettingsViewController: UIViewController {
     
+    // Buttons for settings options
     let logoutButton = UIButton()
+    let editProfileButton = UIButton()
+    let editMedicineButton = UIButton()
+    let editPasswordButton = UIButton()
     
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .white
         title = "Settings"
         
-        // Setup the logout button
-        setupLogoutButton()
+        // Setup buttons
+        setupButtons()
     }
     
-    func setupLogoutButton() {
-        logoutButton.setTitle("Logout", for: .normal)
-        logoutButton.setTitleColor(.blue, for: .normal)
-        logoutButton.addTarget(self, action: #selector(onLogoutButtonTapped), for: .touchUpInside)
+    func setupButtons() {
+        // Configure buttons
+        configureButton(button: editProfileButton, title: "Edit Profile", action: #selector(onEditProfileTapped))
+        configureButton(button: editMedicineButton, title: "Edit Medicine", action: #selector(onEditMedicineTapped))
+        configureButton(button: editPasswordButton, title: "Edit Password", action: #selector(onEditPasswordTapped))
+        configureButton(button: logoutButton, title: "Logout", action: #selector(onLogoutButtonTapped))
         
-        logoutButton.translatesAutoresizingMaskIntoConstraints = false
-        view.addSubview(logoutButton)
+        // Add buttons to the view
+        let stackView = UIStackView(arrangedSubviews: [editProfileButton, editMedicineButton, editPasswordButton, logoutButton])
+        stackView.axis = .vertical
+        stackView.alignment = .center
+        stackView.spacing = 20
+        stackView.translatesAutoresizingMaskIntoConstraints = false
+        view.addSubview(stackView)
         
-        // Constraints for the logout button
+        // Constraints for stack view
         NSLayoutConstraint.activate([
-            logoutButton.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-            logoutButton.centerYAnchor.constraint(equalTo: view.centerYAnchor)
+            stackView.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            stackView.centerYAnchor.constraint(equalTo: view.centerYAnchor)
         ])
+    }
+    
+    func configureButton(button: UIButton, title: String, action: Selector) {
+        button.setTitle(title, for: .normal)
+        button.setTitleColor(.blue, for: .normal)
+        button.addTarget(self, action: action, for: .touchUpInside)
+        button.translatesAutoresizingMaskIntoConstraints = false
+    }
+    
+    // MARK: - Button Actions
+    
+    @objc func onEditProfileTapped() {
+        print("Edit Profile button tapped")
+        // Navigate to Edit Profile screen or show functionality
+    }
+    
+    @objc func onEditMedicineTapped() {
+        print("Edit Medicine button tapped")
+        // Navigate to Edit Medicine screen or show functionality
+    }
+    
+    @objc func onEditPasswordTapped() {
+        print("Edit Password button tapped")
+        // Navigate to Edit Password screen or show functionality
     }
     
     @objc func onLogoutButtonTapped() {
@@ -36,7 +71,7 @@ class SettingsViewController: UIViewController {
             
             // Handle the logout action and navigate back to the ViewController
             DispatchQueue.main.async {
-                let mainVC = ViewController()  // Your initial ViewController
+                let mainVC = ViewController()  // Replace with your initial ViewController
                 let navigationController = UINavigationController(rootViewController: mainVC)
                 self.view.window?.rootViewController = navigationController
                 self.view.window?.makeKeyAndVisible()
