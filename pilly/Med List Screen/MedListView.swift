@@ -115,32 +115,34 @@ import UIKit
 import FirebaseFirestore
 import FirebaseAuth
 
-class MedListView: UIView, UITableViewDelegate, UITableViewDataSource {
+class MedListView: UIView, UITableViewDelegate, UITableViewDataSource, UISearchBarDelegate {
     var tableViewMed: UITableView!
     var dateLabel: UILabel!
     var welcomeLabel: UILabel!
     var searchBar: UISearchBar!
     var meds: [Med] = []
-    
+    var filteredMeds: [Med] = [] // Filtered array for search results
+    var isSearching = false // Flag to indicate if search is active
+
     override init(frame: CGRect) {
         super.init(frame: frame)
         backgroundColor = .white
-        
+
         // Initialize the TableView
         setupTableViewMed()
         setupDateLabel()
         setupWelcomeLabel()
         setupSearchBar()
         initConstraints()
-        
+
         // Fetch medications from Firestore
         fetchMedsFromFirestore()
     }
-    
+
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
-    
+
     func setupTableViewMed() {
         tableViewMed = UITableView()
         tableViewMed.register(TableViewMedCell.self, forCellReuseIdentifier: "meds")
@@ -149,10 +151,11 @@ class MedListView: UIView, UITableViewDelegate, UITableViewDataSource {
         tableViewMed.dataSource = self
         self.addSubview(tableViewMed)
     }
-    
+
     func setupSearchBar() {
         searchBar = UISearchBar()
         searchBar.placeholder = "Search for medications..."
+        searchBar.delegate = self // Set the delegate
         searchBar.backgroundImage = UIImage() // Removes default background
         searchBar.backgroundColor = UIColor(red: 179/255, green: 235/255, blue: 242/255, alpha: 0.5)
         searchBar.layer.cornerRadius = 10
@@ -169,21 +172,21 @@ class MedListView: UIView, UITableViewDelegate, UITableViewDataSource {
         welcomeLabel.translatesAutoresizingMaskIntoConstraints = false
         self.addSubview(welcomeLabel)
     }
-    
+
     func getCurrentDate() -> String {
         let dateFormatter = DateFormatter()
         dateFormatter.dateStyle = .long
         let currentDate = Date()
         return dateFormatter.string(from: currentDate)
     }
-    
+
     func setupDateLabel() {
         dateLabel = UILabel()
         dateLabel.translatesAutoresizingMaskIntoConstraints = false
         dateLabel.text = getCurrentDate() // Set current date
         self.addSubview(dateLabel)
     }
-    
+
     func initConstraints() {
         NSLayoutConstraint.activate([
             // Search Bar Constraints
@@ -191,17 +194,17 @@ class MedListView: UIView, UITableViewDelegate, UITableViewDataSource {
             searchBar.leadingAnchor.constraint(equalTo: self.leadingAnchor, constant: 8),
             searchBar.trailingAnchor.constraint(equalTo: self.trailingAnchor, constant: -8),
             searchBar.heightAnchor.constraint(equalToConstant: 40),
-            
+
             // Date Label Constraints
             dateLabel.topAnchor.constraint(equalTo: searchBar.bottomAnchor, constant: 8),
             dateLabel.leadingAnchor.constraint(equalTo: self.leadingAnchor, constant: 8),
             dateLabel.trailingAnchor.constraint(equalTo: self.trailingAnchor, constant: -8),
-            
+
             // Welcome Label Constraints
             welcomeLabel.topAnchor.constraint(equalTo: dateLabel.bottomAnchor, constant: 8),
             welcomeLabel.leadingAnchor.constraint(equalTo: self.leadingAnchor, constant: 8),
             welcomeLabel.trailingAnchor.constraint(equalTo: self.trailingAnchor, constant: -8),
-            
+
             // TableView Constraints
             tableViewMed.topAnchor.constraint(equalTo: welcomeLabel.bottomAnchor, constant: 8),
             tableViewMed.bottomAnchor.constraint(equalTo: self.safeAreaLayoutGuide.bottomAnchor, constant: -8),
@@ -209,9 +212,8 @@ class MedListView: UIView, UITableViewDelegate, UITableViewDataSource {
             tableViewMed.trailingAnchor.constraint(equalTo: self.safeAreaLayoutGuide.trailingAnchor, constant: -8),
         ])
     }
-    
+
     // MARK: - Firestore Data Fetching
-    
     func fetchMedsFromFirestore() {
         let db = Firestore.firestore()
 
@@ -236,52 +238,53 @@ class MedListView: UIView, UITableViewDelegate, UITableViewDataSource {
                         let time = data["time"] as? String
                         let isChecked = data["isChecked"] as? Bool ?? false
 
-                        let dosage = Dosage(rawValue: dosageString ?? "") // Assuming Dosage is an enum
-                        let frequency = Frequency(rawValue: frequencyString ?? "") // Assuming Frequency is an enum
+                        let dosage = Dosage(rawValue: dosageString ?? "")
+                        let frequency = Frequency(rawValue: frequencyString ?? "")
                         
-                        // Create a Med object and append to the array
                         let med = Med(title: title, amount: amount, dosage: dosage, frequency: frequency, time: time, isChecked: isChecked)
                         fetchedMeds.append(med)
                     }
                 }
                 
-                // Update the meds array and reload the table view
                 self.meds = fetchedMeds
+                self.filteredMeds = fetchedMeds // Initialize filteredMeds
                 self.tableViewMed.reloadData()
             }
         }
     }
 
+    // MARK: - UISearchBarDelegate
+    func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
+        if searchText.isEmpty {
+            isSearching = false
+            filteredMeds = meds
+        } else {
+            isSearching = true
+            filteredMeds = meds.filter { $0.title!.lowercased().contains(searchText.lowercased()) }
+        }
+        tableViewMed.reloadData()
+    }
 
     // MARK: - TableView Delegate and DataSource
-    
     func numberOfSections(in tableView: UITableView) -> Int {
         return 1
     }
 
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return meds.count
+        return isSearching ? filteredMeds.count : meds.count
     }
 
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "meds", for: indexPath) as! TableViewMedCell
-        let med = meds[indexPath.row]
-        
-        // Configure the cell with medication data
+        let med = isSearching ? filteredMeds[indexPath.row] : meds[indexPath.row]
+
         cell.labelTitle.text = med.title
         cell.labelAmount.text = med.amount
         cell.labelDosage.text = med.dosage?.rawValue
-        if let frequency = med.frequency {
-            cell.labelFrequency.text = med.frequency?.rawValue ?? "No frequency available"
-        } else {
-            cell.labelFrequency.text = "No frequency available" // or some default text
-        }
-
+        cell.labelFrequency.text = med.frequency?.rawValue ?? "No frequency available"
         cell.labelTime.text = med.time
         cell.checkboxButton.isSelected = med.isChecked
 
-        
         return cell
     }
 }
-

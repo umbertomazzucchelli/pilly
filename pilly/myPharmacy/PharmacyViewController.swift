@@ -10,90 +10,83 @@ import MapKit
 
 class PharmacyViewController: UIViewController, UISearchBarDelegate{
     
-    let pharmacyView = PharmacyView()
+    let mapView = MapView()
+    
     let locationManager = CLLocationManager()
     
     override func loadView() {
-        view = pharmacyView
+        view = mapView
     }
 
     override func viewDidLoad() {
         super.viewDidLoad()
         title = "Pharmacy"
-        pharmacyView.searchBar.delegate = self
-        pharmacyView.buttonCurrentLocation.addTarget(self, action: #selector(onButtonCurrentLocationTapped), for: .touchUpInside)
-       
+        navigationController?.navigationBar.prefersLargeTitles = true
         
-        setupLocationManager()
+        //MARK: add action for current location button tap...
+        mapView.buttonCurrentLocation.addTarget(self, action: #selector(onButtonCurrentLocationTapped), for: .touchUpInside)
         
+        //MARK: add action for bottom search button tap...
+        mapView.buttonSearch.addTarget(self, action: #selector(onButtonSearchTapped), for: .touchUpInside)
+        
+        //MARK: setting up location manager...
 
-        // Do any additional setup after loading the view.
         
+        //MARK: center the map view to current location when the app loads...
         onButtonCurrentLocationTapped()
+        
+        
+        //MARK: Annotating Northeastern University...
+        let northeastern = Place(
+            title: "Northeastern University",
+            coordinate: CLLocationCoordinate2D(latitude: 42.339918, longitude: -71.089797),
+            info: "LVX VERITAS VIRTVS"
+        )
+        
+        mapView.mapView.addAnnotation(northeastern)
+        mapView.mapView.delegate = self
     }
     
-    @objc func onButtonCurrentLocationTapped() {
-        if let uwLocation = locationManager.location {
-            pharmacyView.mapView.centerToLocation(location: uwLocation)  // Center map on user's location
-        } else {
-            print("Location is not available yet.")  // Debug message if location is unavailable
-        }
-    }
-    
-    func searchForNearbyPharmacies(query: String, location: CLLocation) {
-            let request = MKLocalSearch.Request()
-            request.naturalLanguageQuery = query  // "pharmacy"
-            request.region = MKCoordinateRegion(center: location.coordinate, latitudinalMeters: 5000, longitudinalMeters: 5000)  // Search within 5km
-            
-            let search = MKLocalSearch(request: request)
-            
-            search.start { (response, error) in
-                if let error = error {
-                    print("Error searching for pharmacies: \(error.localizedDescription)")
-                    return
-                }
-                
-                guard let response = response else {
-                    print("No results found.")
-                    return
-                }
-                
-                // Remove previous annotations
-                self.pharmacyView.mapView.removeAnnotations(self.pharmacyView.mapView.annotations)
-                
-                // Add new annotations for pharmacies
-                for mapItem in response.mapItems {
-                    let annotation = MKPointAnnotation()
-                    annotation.title = mapItem.name
-                    annotation.subtitle = mapItem.placemark.title
-                    annotation.coordinate = mapItem.placemark.coordinate
-                    self.pharmacyView.mapView.addAnnotation(annotation)
-                }
-            }
+    @objc func onButtonCurrentLocationTapped(){
+        if let uwLocation = locationManager.location{
+            mapView.mapView.centerToLocation(location: uwLocation)
         }
         
-        // UISearchBarDelegate method to handle search query
-        func searchBarSearchButtonClicked(_ searchBar: UISearchBar) {
-            if let query = searchBar.text, let location = locationManager.location {
-                searchForNearbyPharmacies(query: query, location: location)  // Perform search
-            }
-            searchBar.resignFirstResponder()  // Dismiss keyboard
-        }
-
-
-   
-
-}
-
-extension MKMapView {
-    func centerToLocation(location : CLLocation , radius : CLLocationDistance = 1000 ) // radius is 1 km
-    {
-        let coordinateRegion = MKCoordinateRegion(
-                    center: location.coordinate,
-                    latitudinalMeters: radius,
-                    longitudinalMeters: radius
-                )
-                setRegion(coordinateRegion, animated: true)
     }
+    
+    @objc func onButtonSearchTapped(){
+        
+        //MARK: Setting up bottom search sheet...
+        let searchViewController  = SearchViewController()
+        searchViewController.delegateToMapView = self
+        
+        let navForSearch = UINavigationController(rootViewController: searchViewController)
+        navForSearch.modalPresentationStyle = .pageSheet
+        
+        if let searchBottomSheet = navForSearch.sheetPresentationController{
+            searchBottomSheet.detents = [.medium(), .large()]
+            searchBottomSheet.prefersGrabberVisible = true
+        }
+        
+        present(navForSearch, animated: true)
+    }
+    
+    //MARK: show selected place on map...
+    func showSelectedPlace(placeItem: MKMapItem){
+        let coordinate = placeItem.placemark.coordinate
+        mapView.mapView.centerToLocation(
+            location: CLLocation(
+                latitude: coordinate.latitude,
+                longitude: coordinate.longitude
+            )
+        )
+        let place = Place(
+            title: placeItem.name!,
+            coordinate: coordinate,
+            info: placeItem.description
+        )
+        mapView.mapView.addAnnotation(place)
+    }
+
 }
 

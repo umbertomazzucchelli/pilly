@@ -9,6 +9,7 @@
 import UIKit
 import FirebaseAuth
 import FirebaseFirestore
+import MapKit
 
 class ViewController: UIViewController, AddAccountDelegate {
     
@@ -20,6 +21,8 @@ class ViewController: UIViewController, AddAccountDelegate {
     var medList = [Med]()
     var mainScreenView = MainScreenView()
     var medListView = MedListView()
+    let mapView = MapView()
+    var locationManager: CLLocationManager!
     
     override func loadView() {
         view = mainScreenView
@@ -27,6 +30,7 @@ class ViewController: UIViewController, AddAccountDelegate {
 
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
+        locationManager = CLLocationManager()
         
         handleAuth = Auth.auth().addStateDidChangeListener { [weak self] auth, user in
             guard let self = self else { return }
@@ -195,3 +199,14 @@ class ViewController: UIViewController, AddAccountDelegate {
         }
     }
 }
+extension MKMapView{
+    func centerToLocation(location: CLLocation, radius: CLLocationDistance = 1000){
+        let coordinateRegion = MKCoordinateRegion(
+            center: location.coordinate,
+            latitudinalMeters: radius,
+            longitudinalMeters: radius
+        )
+        setRegion(coordinateRegion, animated: true)
+    }
+}
+
