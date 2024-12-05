@@ -17,20 +17,18 @@ extension AddAccountViewController {
             return
           }
           
-          guard let email = addView.emailTextField.text, !email.isEmpty else {
+        guard let email = addView.emailTextField.text, !email.isEmpty else {
             showAlert(message: "Please enter your email address.")
             return
-          }
-          
-          guard let password = addView.passwordTextField.text, !password.isEmpty else {
+            }
+
+        guard let password = addView.passwordTextField.text, !password.isEmpty else {
             showAlert(message: "Please enter a password.")
             return
-          }
+            }
         
-//        guard let phone = addView.phoneTextField.text, !password.isEmpty else {
-//          showAlert(message: "Please enter a phone number.")
-//          return
-//        }
+        // Phone is optional, so it will included it only if it's not empty
+        let phone = addView.phoneTextField.text?.isEmpty == false ? addView.phoneTextField.text : nil
         
         // Show progress indicator
         showActivityIndicator()
@@ -45,16 +43,38 @@ extension AddAccountViewController {
                 return
             }
             
-            
-            
             // Set user's display name
             self.setNameOfTheUserInFirebaseAuth(name: name)
             
             // Create user document in Firestore
-            let newUser = User(name: name, email: email.lowercased())
+            let newUser = User(name: name, email: email.lowercased(), phone: phone)
             self.addNewUserToFirestore(newUser: newUser)
             
-            self.delegate?.didCompleteAccountCreation()
+            self.notificationCenter.post(name: .userRegistered, object: nil)
+            
+            // Hide progress indicator
+            self.hideActivityIndicator()
+            
+            // Automatically sign in the user after account creation
+            Auth.auth().signIn(withEmail: email, password: password) { [weak self] signInResult, signInError in
+                if let error = signInError {
+                    self?.showAlert(message: "Account created but couldn't sign in:  \(error.localizedDescription)")
+                    return
+                }
+                
+                DispatchQueue.main.async {
+                   // Get the current window scene and switch to main tab bar controller
+                   if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
+                      let window = windowScene.windows.first {
+                       let mainTabBarController = MainTabBarController()
+                       window.rootViewController = mainTabBarController
+                       window.makeKeyAndVisible()
+                       
+                       // Notify delegate of completion
+                       self?.delegate?.didCompleteAccountCreation()
+                   }
+               }
+            }
         }
     }
     
@@ -73,25 +93,13 @@ extension AddAccountViewController {
         let userRef = database.collection("users").document(newUser.email.lowercased())
         
         do {
-            try userRef.setData(from: newUser) { [weak self] error in
-                guard let self = self else { return }
-                
-                self.hideActivityIndicator()
-                
+            try userRef.setData(from: newUser) { error in
                 if let error = error {
-                    self.showAlert(message: "Error creating user: \(error.localizedDescription)")
-                    return
+                    print("Error creating user document: \(error)")
                 }
-                
-                // Post notification that user registered successfully
-                self.notificationCenter.post(name: .userRegistered, object: nil)
-                
-                // Navigate back to main screen
-                self.navigationController?.popViewController(animated: true)
             }
         } catch {
-            hideActivityIndicator()
-            showAlert(message: "Error encoding user data")
+            print("Error encoding user data: \(error)")
         }
     }
 }

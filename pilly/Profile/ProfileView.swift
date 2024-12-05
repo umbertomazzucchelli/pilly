@@ -14,6 +14,7 @@ class ProfileView: UIView {
     var personalInfoButton: UIButton!
     var myPharmacyButton: UIButton!
     var settingsButton: UIButton!
+    var phoneLabel: UILabel!
 
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -23,6 +24,7 @@ class ProfileView: UIView {
         setuppersonalInfoButton()
         setupmyPharmacyButton()
         setupsettingsButton()
+        setupPhoneLabel()
         initConstraints()
     }
     
@@ -82,6 +84,15 @@ class ProfileView: UIView {
         self.addSubview(settingsButton)
     }
     
+    func setupPhoneLabel() {
+        phoneLabel = UILabel()
+        phoneLabel.font = UIFont(name: "Open Sans MS", size: 16)
+        phoneLabel.textColor = .gray
+        phoneLabel.translatesAutoresizingMaskIntoConstraints = false
+        phoneLabel.isHidden = true // Hidden by default
+        self.addSubview(phoneLabel)
+    }
+
     func initConstraints() {
         // Ensure all buttons are the same size by setting explicit width and height
         let buttonWidth: CGFloat = 231
@@ -95,6 +106,9 @@ class ProfileView: UIView {
             
             label.topAnchor.constraint(equalTo: userInfoButton.bottomAnchor, constant: 32),
             label.centerXAnchor.constraint(equalTo: self.safeAreaLayoutGuide.centerXAnchor),
+            
+            phoneLabel.topAnchor.constraint(equalTo: label.bottomAnchor, constant: 8),
+            phoneLabel.centerXAnchor.constraint(equalTo: self.safeAreaLayoutGuide.centerXAnchor),
             
             personalInfoButton.topAnchor.constraint(equalTo: label.bottomAnchor, constant: 64),
             personalInfoButton.centerXAnchor.constraint(equalTo: self.safeAreaLayoutGuide.centerXAnchor),
@@ -111,6 +125,15 @@ class ProfileView: UIView {
             settingsButton.widthAnchor.constraint(equalToConstant: buttonWidth),
             settingsButton.heightAnchor.constraint(equalToConstant: buttonHeight)
         ])
+    }
+    
+    func updatePhoneLabel(with phone: String?) {
+        if let phone = phone, !phone.isEmpty {
+            phoneLabel.text = "Phone: \(phone)"
+            phoneLabel.isHidden = false
+        } else {
+            phoneLabel.isHidden = true
+        }
     }
     
     required init?(coder: NSCoder) {
