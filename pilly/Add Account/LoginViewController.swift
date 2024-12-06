@@ -26,9 +26,7 @@ class LoginViewController: UIViewController, AddAccountDelegate {
         super.viewDidLoad()
         title = "Login"
         
-//        mainScreenView.signInButton.addTarget(self, action: #selector(signInTapped), for: .touchUpInside)
         
-        // Initialize the success message label and set properties
         loginSuccessMessageLabel = UILabel()
         loginSuccessMessageLabel.frame = CGRect(x: 0, y: 0, width: view.frame.width, height: 40)
         loginSuccessMessageLabel.textAlignment = .center
@@ -37,9 +35,6 @@ class LoginViewController: UIViewController, AddAccountDelegate {
         view.addSubview(loginSuccessMessageLabel)
     }
 
-//    @objc func signInTapped() {
-//        presentLoginScreen()
-//    }
     
     func presentLoginScreen() {
         let signInAlert = UIAlertController(

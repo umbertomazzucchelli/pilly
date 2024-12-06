@@ -18,10 +18,11 @@ class HomeViewController: UIViewController {
         super.viewDidLoad()
         view.backgroundColor = .white
         title = "My Medications"
-        
+
         setupMedListView()
         setupAddButton()
     }
+
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
@@ -51,6 +52,7 @@ class HomeViewController: UIViewController {
         )
         navigationItem.rightBarButtonItem = addButton
     }
+
     
     @objc func addMedicationTapped() {
         let addMedVC = AddMedViewController()
@@ -67,6 +69,10 @@ class HomeViewController: UIViewController {
         alert.addAction(UIAlertAction(title: "OK", style: .default))
         present(alert, animated: true)
     }
+    deinit {
+            // Remove observer when view controller is deallocated
+            NotificationCenter.default.removeObserver(self, name: Notification.Name("MedicationClicked"), object: nil)
+        }
 }
 
 // MARK: - AddMedViewControllerDelegate
@@ -86,25 +92,21 @@ extension HomeViewController: UITableViewDelegate {
         if editingStyle == .delete {
             guard let userId = Auth.auth().currentUser?.uid else { return }
             
-            // Get the medication to delete
             let medToDelete = medListView.meds[indexPath.row]
             
-            // Query for the document with matching title
             db.collection("users").document(userId).collection("medications")
-                .whereField("title", isEqualTo: medToDelete.title ?? "")
+                .whereField("id", isEqualTo: medToDelete.id ?? "")
                 .getDocuments { [weak self] (querySnapshot, error) in
                     if let error = error {
                         self?.showAlert(message: "Error deleting medication: \(error.localizedDescription)")
                         return
                     }
                     
-                    // Delete the first matching document
                     if let documentToDelete = querySnapshot?.documents.first {
                         documentToDelete.reference.delete { [weak self] error in
                             if let error = error {
                                 self?.showAlert(message: "Error deleting medication: \(error.localizedDescription)")
                             } else {
-                                // Refresh the medications list after successful deletion
                                 DispatchQueue.main.async {
                                     self?.medListView.fetchMedsFromFirestore()
                                 }

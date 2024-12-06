@@ -14,19 +14,15 @@ class PersonalInfoViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        // Initialize the PersonalInfoView
         personalInfoView = PersonalInfoView(frame: view.bounds)
         view.addSubview(personalInfoView)
         
-        // Load user data for the first time when the view is loaded
         personalInfoView.loadUserData()
     }
     
-    // This method is called every time the view is about to appear on the screen
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         
-        // Refresh the user data when coming back to this screen
         personalInfoView.loadUserData()
     }
 }

@@ -11,6 +11,7 @@ import FirebaseFirestore
 import FirebaseAuth
 
 class MedListView: UIView, UITableViewDelegate, UITableViewDataSource, UISearchBarDelegate {
+    
     var tableViewMed: UITableView!
     var dateLabel: UILabel!
     var welcomeLabel: UILabel!
@@ -19,20 +20,20 @@ class MedListView: UIView, UITableViewDelegate, UITableViewDataSource, UISearchB
     var filteredMeds: [Med] = []
     var isSearching = false
     var selectedDate: DateComponents?
+    var medicationCheckState: [String: [String: Bool]] = [:]
+    var listener: ListenerRegistration?
 
-
+    var viewController: UINavigationController?
     override init(frame: CGRect) {
         super.init(frame: frame)
         backgroundColor = .white
 
-        // Initialize the TableView
         setupTableViewMed()
         setupDateLabel()
         setupWelcomeLabel()
         setupSearchBar()
         initConstraints()
 
-        // Fetch medications from Firestore
         fetchMedsFromFirestore()
         setupRealTimeListener()
     }
@@ -56,7 +57,7 @@ class MedListView: UIView, UITableViewDelegate, UITableViewDataSource, UISearchB
     func setupSearchBar() {
         searchBar = UISearchBar()
         searchBar.placeholder = "Search for medications..."
-        searchBar.delegate = self // Set the delegate
+        searchBar.delegate = self
         searchBar.backgroundImage = UIImage() // Removes default background
         searchBar.backgroundColor = UIColor(red: 179/255, green: 235/255, blue: 242/255, alpha: 0.5)
         searchBar.layer.cornerRadius = 10
@@ -90,32 +91,28 @@ class MedListView: UIView, UITableViewDelegate, UITableViewDataSource, UISearchB
 
     func initConstraints() {
         NSLayoutConstraint.activate([
-            // Search Bar Constraints
             searchBar.topAnchor.constraint(equalTo: self.topAnchor, constant: 32),
             searchBar.leadingAnchor.constraint(equalTo: self.leadingAnchor, constant: 8),
             searchBar.trailingAnchor.constraint(equalTo: self.trailingAnchor, constant: -8),
             searchBar.heightAnchor.constraint(equalToConstant: 40),
-
-            // Date Label Constraints
             dateLabel.topAnchor.constraint(equalTo: searchBar.bottomAnchor, constant: 8),
             dateLabel.leadingAnchor.constraint(equalTo: self.leadingAnchor, constant: 8),
             dateLabel.trailingAnchor.constraint(equalTo: self.trailingAnchor, constant: -8),
-
-            // Welcome Label Constraints
             welcomeLabel.topAnchor.constraint(equalTo: dateLabel.bottomAnchor, constant: 8),
             welcomeLabel.leadingAnchor.constraint(equalTo: self.leadingAnchor, constant: 8),
             welcomeLabel.trailingAnchor.constraint(equalTo: self.trailingAnchor, constant: -8),
 
-            // TableView Constraints
             tableViewMed.topAnchor.constraint(equalTo: welcomeLabel.bottomAnchor, constant: 8),
             tableViewMed.bottomAnchor.constraint(equalTo: self.safeAreaLayoutGuide.bottomAnchor, constant: -8),
             tableViewMed.leadingAnchor.constraint(equalTo: self.safeAreaLayoutGuide.leadingAnchor, constant: 8),
             tableViewMed.trailingAnchor.constraint(equalTo: self.safeAreaLayoutGuide.trailingAnchor, constant: -8),
         ])
     }
+
     func updateSelectedDate(_ date: DateComponents) {
-            self.selectedDate = date
-        }
+        self.selectedDate = date
+    }
+
     func updateMedicationStatus(med: Med, isChecked: Bool) {
         guard let user = Auth.auth().currentUser else { return }
         let db = Firestore.firestore()
@@ -133,7 +130,6 @@ class MedListView: UIView, UITableViewDelegate, UITableViewDataSource, UISearchB
             }
         }
     }
-
 
     // MARK: - Firestore Data Fetching
     func fetchMedsFromFirestore() {
@@ -169,11 +165,51 @@ class MedListView: UIView, UITableViewDelegate, UITableViewDataSource, UISearchB
                 }
                 
                 self.meds = fetchedMeds
-                self.filteredMeds = fetchedMeds // Initialize filteredMeds
+                self.filteredMeds = fetchedMeds
                 self.tableViewMed.reloadData()
             }
         }
     }
+    
+    func setupRealTimeListener() {
+        guard let user = Auth.auth().currentUser else { return }
+        let db = Firestore.firestore()
+        let medicationsRef = db.collection("users").document(user.uid).collection("medications")
+
+        listener = medicationsRef.addSnapshotListener { (snapshot, error) in
+            if let error = error {
+                print("Error listening for updates: \(error.localizedDescription)")
+                return
+            }
+
+            var updatedMeds: [Med] = []
+            if let documents = snapshot?.documents {
+                for document in documents {
+                    let data = document.data()
+                    let title = data["title"] as? String ?? "Unknown"
+                    let amount = data["amount"] as? String
+                    let dosageString = data["dosage"] as? String
+                    let frequencyString = data["frequency"] as? String
+                    let time = data["time"] as? String
+                    let isChecked = data["isChecked"] as? Bool ?? false
+
+                    let dosage = Dosage(rawValue: dosageString ?? "")
+                    let frequency = Frequency(rawValue: frequencyString ?? "")
+                    
+                    let med = Med(title: title, amount: amount, dosage: dosage, frequency: frequency, time: time, isChecked: isChecked)
+                    updatedMeds.append(med)
+                }
+            }
+
+            self.meds = updatedMeds
+            self.filteredMeds = updatedMeds
+            self.tableViewMed.reloadData()
+        }
+    }
+    deinit {
+        listener?.remove()
+    }
+
 
     // MARK: - UISearchBarDelegate
     func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
@@ -200,138 +236,89 @@ class MedListView: UIView, UITableViewDelegate, UITableViewDataSource, UISearchB
         let cell = tableView.dequeueReusableCell(withIdentifier: "meds", for: indexPath) as! TableViewMedCell
         let med = isSearching ? filteredMeds[indexPath.row] : meds[indexPath.row]
 
+        let currentDate = getCurrentDate()
+        let isCheckedToday = medicationCheckState[currentDate]?[med.title ?? ""] ?? med.isChecked
+
         cell.labelTitle.text = med.title
         cell.labelAmount.text = med.amount
         cell.labelDosage.text = med.dosage?.rawValue
         cell.labelFrequency.text = med.frequency?.rawValue ?? "No frequency available"
         cell.labelTime.text = med.time
-        cell.checkboxButton.isSelected = med.isChecked
+        cell.checkboxButton.isSelected = isCheckedToday
 
+        cell.checkboxButton.addTarget(self, action: #selector(handleCheckboxTapped(_:)), for: .touchUpInside)
         return cell
     }
-    func setupRealTimeListener() {
-        guard let user = Auth.auth().currentUser else { return }
-        let db = Firestore.firestore()
-        let medicationsRef = db.collection("users").document(user.uid).collection("medications")
+
+    @objc func handleCheckboxTapped(_ sender: UIButton) {
+        guard let cell = sender.superview?.superview as? TableViewMedCell,
+              let indexPath = tableViewMed.indexPath(for: cell) else { return }
         
-        medicationsRef.addSnapshotListener { [weak self] snapshot, error in
-            if let error = error {
-                print("Error listening for changes: \(error.localizedDescription)")
-                return
-            }
-            
-            var updatedMeds: [Med] = []
-            snapshot?.documents.forEach { document in
-                let data = document.data()
-                let med = Med(
-                    title: data["title"] as? String ?? "Unknown",
-                    amount: data["amount"] as? String,
-                    dosage: Dosage(rawValue: data["dosage"] as? String ?? ""),
-                    frequency: Frequency(rawValue: data["frequency"] as? String ?? ""),
-                    time: data["time"] as? String,
-                    isChecked: data["isChecked"] as? Bool ?? false
-                )
-                updatedMeds.append(med)
-            }
-            
-            self?.meds = updatedMeds
-            self?.filteredMeds = updatedMeds
-            self?.tableViewMed.reloadData()
-            
-            // Notify other parts of the app
-            NotificationCenter.default.post(name: .medicationsUpdated, object: updatedMeds)
+        let med = filteredMeds[indexPath.row]
+        let isChecked = !sender.isSelected
+        sender.isSelected = isChecked
+        
+        let currentDate = getCurrentDate()
+        if medicationCheckState[currentDate] == nil {
+            medicationCheckState[currentDate] = [:]
         }
+        medicationCheckState[currentDate]?[med.title ?? ""] = isChecked
+
+        updateMedicationStatus(med: med, isChecked: isChecked)
     }
 
-    func deleteMedication(med: Med, at indexPath: IndexPath) {
-        guard let user = Auth.auth().currentUser else { return }
-        let db = Firestore.firestore()
-        let medicationsRef = db.collection("users").document(user.uid).collection("medications")
-        
-        medicationsRef.whereField("title", isEqualTo: med.title ?? "").getDocuments { [weak self] (snapshot, error) in
-            guard let documents = snapshot?.documents, let document = documents.first else {
-                print("Medication not found for deletion.")
-                return
-            }
+    
+    func tableView(_ tableView: UITableView, trailingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
+        let deleteAction = UIContextualAction(style: .destructive, title: "Delete") { [weak self] (action, view, completionHandler) in
+            guard let self = self else { return }
+            let med = self.isSearching ? self.filteredMeds[indexPath.row] : self.meds[indexPath.row]
 
-            // Delete the document
-            document.reference.delete { error in
+            self.deleteMedicationFromFirestore(med: med) {
+                success in
+                if success {
+                    self.meds.removeAll { $0.title == med.title }
+                    self.filteredMeds.removeAll { $0.title == med.title }
+                    tableView.reloadData()
+                } else {
+                    print("Failed to delete medication")
+                }
+                completionHandler(true)
+            }
+        }
+        deleteAction.backgroundColor = UIColor.red
+        
+        return UISwipeActionsConfiguration(actions: [deleteAction])
+        
+    }
+
+        
+    func deleteMedicationFromFirestore(med: Med?, completion: @escaping (Bool) -> Void) {
+            guard let user = Auth.auth().currentUser, let med = med else { return }
+            
+            let db = Firestore.firestore()
+            let medicationsRef = db.collection("users").document(user.uid).collection("medications")
+            
+            medicationsRef.whereField("title", isEqualTo: med.title ?? "").getDocuments { snapshot, error in
                 if let error = error {
                     print("Error deleting medication: \(error.localizedDescription)")
-                } else {
-                    print("Medication deleted successfully.")
-
-                    // Update the correct data source and table view
-                    if self?.isSearching == true {
-                        self?.filteredMeds.remove(at: indexPath.row)
-                    }
-                    self?.meds.removeAll { $0.title == med.title }
-
-                    DispatchQueue.main.async {
-                        self?.tableViewMed.performBatchUpdates {
-                            self?.tableViewMed.deleteRows(at: [indexPath], with: .automatic)
+                    return
+                }
+                
+                if let document = snapshot?.documents.first {
+                    document.reference.delete { error in
+                        if let error = error {
+                            print("Error deleting medication document: \(error.localizedDescription)")
+                            completion(false)
+                        } else {
+                            print("Medication deleted successfully.")
+                            completion(true)
                         }
                     }
+
                 }
             }
         }
-    }
-
-    func editMedication(med: Med) {
-        // Handle the logic for editing
-        // You can present a new view controller or a popup to allow the user to modify the medication details.
-        print("Editing medication: \(med.title ?? "Unknown")")
-    }
-
-
-}
-// MARK: - UITableViewDelegate: Swipe Actions
-extension MedListView {
-    func tableView(_ tableView: UITableView, trailingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
-        let med = isSearching ? filteredMeds[indexPath.row] : meds[indexPath.row]
-
-        // Delete action
-        let deleteAction = UIContextualAction(style: .destructive, title: "Delete") { [weak self] _, _, completionHandler in
-            self?.deleteMedication(med: med, at: indexPath)
-            completionHandler(true)
-        }
-        deleteAction.backgroundColor = .systemRed
-
-        // Edit action
-        let editAction = UIContextualAction(style: .normal, title: "Edit") { [weak self] _, _, completionHandler in
-            self?.editMedication(med: med)
-            completionHandler(true)
-        }
-        editAction.backgroundColor = .systemBlue
-
-        return UISwipeActionsConfiguration(actions: [deleteAction, editAction])
-    }
-    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        var med = isSearching ? filteredMeds[indexPath.row] : meds[indexPath.row]
-        med.isChecked.toggle() // Toggle the checked state
-
-        // Ensure that you use the selected date for updating the correct document
-        guard let user = Auth.auth().currentUser, let selectedDate = selectedDate else { return }
+  
         
-        let db = Firestore.firestore()
-        let medicationsRef = db.collection("users").document(user.uid).collection("medications")
-        
-        // Search for the medication by title and date
-        let selectedDateString = DateFormatter.localizedString(from: selectedDate.date!, dateStyle: .short, timeStyle: .none) // Convert to string representation
-        medicationsRef.whereField("title", isEqualTo: med.title ?? "").whereField("date", isEqualTo: selectedDateString).getDocuments { snapshot, error in
-            if let document = snapshot?.documents.first {
-                // Update the specific medication for the selected date
-                document.reference.updateData(["isChecked": med.isChecked]) { error in
-                    if let error = error {
-                        print("Error updating medication: \(error.localizedDescription)")
-                    } else {
-                        print("Medication status updated successfully.")
-                    }
-                }
-            }
-        }
-        
-        tableView.reloadRows(at: [indexPath], with: .automatic)
-    }
-
+       
 }

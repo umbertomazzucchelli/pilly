@@ -1,9 +1,10 @@
 //
 //  MapAnnotationDelegate.swift
-//  App14
+// Repurposed from: App14  created by Sakib Miazi on 6/14/23.
+// pilly
 //  Repurposed from: https://www.hackingwithswift.com/read/16/3/annotations-and-accessory-views-mkpinannotationview
-//  Created by Sakib Miazi on 6/14/23.
-//
+
+
 
 import Foundation
 import MapKit

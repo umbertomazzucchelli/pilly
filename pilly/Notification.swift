@@ -13,6 +13,11 @@ extension Notification.Name{
     static let userLoggedout = Notification.Name("userLoggedout")
     static let placesFromMap = Notification.Name("placesFromMap")
     static let medicationsUpdated = Notification.Name("medicationStatusChanged")
+    
+    func editMedication(med: Med?) {
+        NotificationCenter.default.post(name: Notification.Name("MedicationClicked"), object: med)
+    }
+
 
 
     

@@ -37,15 +37,7 @@ class PharmacyViewController: UIViewController, UISearchBarDelegate{
         //MARK: center the map view to current location when the app loads...
         onButtonCurrentLocationTapped()
         
-        
-        //MARK: Annotating Northeastern University...
-        let northeastern = Place(
-            title: "Northeastern University",
-            coordinate: CLLocationCoordinate2D(latitude: 42.339918, longitude: -71.089797),
-            info: "LVX VERITAS VIRTVS"
-        )
-        
-        mapView.mapView.addAnnotation(northeastern)
+     
         mapView.mapView.delegate = self
     }
     func requestLocationPermission() {
