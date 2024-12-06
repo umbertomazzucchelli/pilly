@@ -14,11 +14,10 @@ import Foundation
 extension AddAccountViewController {
     func addNewAccount() {
         guard let email = addView.emailTextField.text,
-            let password = addView.passwordTextField.text
+              let password = addView.passwordTextField.text
         else { return }
 
-        Auth.auth().createUser(withEmail: email, password: password) {
-            [weak self] authResult, error in
+        Auth.auth().createUser(withEmail: email, password: password) { [weak self] authResult, error in
             guard let self = self else { return }
 
             if let error = error {
@@ -26,82 +25,58 @@ extension AddAccountViewController {
                 return
             }
 
-            if let image = self.pickedImage,
-                let imageData = image.jpegData(compressionQuality: 0.8)
-            {
-                let storageRef = Storage.storage().reference().child(
-                    "profileImages/\(authResult!.user.uid).jpg")
+            guard let userId = authResult?.user.uid else {
+                self.showAlert(message: "User ID not found.")
+                return
+            }
 
-                storageRef.putData(imageData, metadata: nil) {
-                    metadata, error in
+            if let image = self.pickedImage,
+               let imageData = image.jpegData(compressionQuality: 0.8) {
+                // Upload profile image
+                let storageRef = Storage.storage().reference().child("profileImages/\(userId).jpg")
+                storageRef.putData(imageData, metadata: nil) { metadata, error in
                     if let error = error {
-                        self.showAlert(
-                            message:
-                                "Error uploading image: \(error.localizedDescription)"
-                        )
+                        self.showAlert(message: "Error uploading image: \(error.localizedDescription)")
                         return
                     }
-                    
+
                     storageRef.downloadURL { url, error in
                         if let error = error {
-                            self.showAlert(
-                                message:
-                                    "Error getting image URL: \(error.localizedDescription)"
-                            )
+                            self.showAlert(message: "Error getting image URL: \(error.localizedDescription)")
                             return
                         }
-                        let userData: [String: Any] = [
-                            "email": email,
-                            "phone": self.addView.phoneTextField.text ?? "",
-                            "name": self.addView.nameTextField.text ?? "",
-                            "profileImageUrl": url?.absoluteString ?? "",
-                        ]
-
-                        Firestore.firestore().collection("users").document(
-                            authResult!.user.uid
-                        ).setData(userData) { error in
-                            if let error = error {
-                                self.showAlert(
-                                    message:
-                                        "Error saving user data: \(error.localizedDescription)"
-                                )
-                            } else {
-                                // Notify the delegate of success
-                                self.delegate?.didCompleteAccountCreation()
-                                self.navigationController?.popViewController(
-                                    animated: true)
-                            }
-                        }
+                        let profileImageUrl = url?.absoluteString ?? ""
+                        self.saveUserData(userId: userId, email: email, profileImageUrl: profileImageUrl)
                     }
                 }
             } else {
-                let userData: [String: Any] = [
-                    "email": email,
-                    "phone": self.addView.phoneTextField.text ?? "",
-                    "name": self.addView.nameTextField.text ?? "",
-                ]
+                // Save user data without profile image
+                self.saveUserData(userId: userId, email: email, profileImageUrl: nil)
+            }
+        }
+    }
 
-                Firestore.firestore().collection("users").document(
-                    authResult!.user.uid
-                ).setData(userData) { error in
-                    if let error = error {
-                        self.showAlert(
-                            message:
-                                "Error saving user data: \(error.localizedDescription)"
-                        )
-                    } else {
-                        self.delegate?.didCompleteAccountCreation()
-                        self.navigationController?.popViewController(
-                            animated: true)
-                    }
-                }
+    private func saveUserData(userId: String, email: String, profileImageUrl: String?) {
+        let userData: [String: Any] = [
+            "email": email,
+            "phone": addView.phoneTextField.text ?? "",
+            "name": addView.nameTextField.text ?? "",
+            "profileImageUrl": profileImageUrl ?? ""
+        ]
+
+        Firestore.firestore().collection("users").document(userId).setData(userData) { [weak self] error in
+            guard let self = self else { return }
+
+            if let error = error {
+                self.showAlert(message: "Error saving user data: \(error.localizedDescription)")
+            } else {
+                self.navigateToMainTabBarController()
             }
         }
     }
 
     func setNameOfTheUserInFirebaseAuth(name: String) {
-        let changeRequest = Auth.auth().currentUser?
-            .createProfileChangeRequest()
+        let changeRequest = Auth.auth().currentUser?.createProfileChangeRequest()
         changeRequest?.displayName = name
         changeRequest?.commitChanges { [weak self] error in
             if let error = error {
@@ -117,9 +92,7 @@ extension AddAccountViewController {
         do {
             try userRef.setData(from: newUser) { error in
                 if let error = error {
-                    print(
-                        "Error saving user data to Firestore: \(error.localizedDescription)"
-                    )
+                    print("Error saving user data to Firestore: \(error.localizedDescription)")
                 } else {
                     print("User data successfully saved to Firestore.")
                 }
@@ -128,11 +101,10 @@ extension AddAccountViewController {
             print("Error encoding user data: \(error.localizedDescription)")
         }
     }
+
     func navigateToMainTabBarController() {
-        if let windowScene = UIApplication.shared.connectedScenes.first
-            as? UIWindowScene,
-            let window = windowScene.windows.first
-        {
+        if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
+           let window = windowScene.windows.first {
             let mainTabBarController = MainTabBarController()
             window.rootViewController = mainTabBarController
             window.makeKeyAndVisible()

@@ -21,6 +21,8 @@ class EditMedicationViewController: UIViewController {
     var updateButton: UIButton!
     var selectFrequency = "Daily"
     var selectDosage = "mg"
+    let notificationCenter = NotificationCenter.default
+
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -260,6 +262,7 @@ class EditMedicationViewController: UIViewController {
                 if let error = error {
                     print("Error updating medication: \(error)")
                 } else {
+//                    NotificationCenter.default.post(name: .medicationsUpdated, object: updatedMeds)
                     print("Medication updated successfully.")
                     self.showSuccessAlert()
                 }

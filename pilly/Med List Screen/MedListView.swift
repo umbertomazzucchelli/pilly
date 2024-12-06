@@ -22,6 +22,7 @@ class MedListView: UIView, UITableViewDelegate, UITableViewDataSource, UISearchB
     var selectedDate: DateComponents?
     var medicationCheckState: [String: [String: Bool]] = [:]
     var listener: ListenerRegistration?
+    let db = Firestore.firestore()
 
     var viewController: UINavigationController?
     override init(frame: CGRect) {
