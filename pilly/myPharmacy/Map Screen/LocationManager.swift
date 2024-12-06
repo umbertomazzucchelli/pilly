@@ -31,8 +31,23 @@ extension PharmacyViewController: CLLocationManagerDelegate{
             mapView.buttonLoading.isHidden = true
             mapView.buttonSearch.isHidden = false
         }
+        
     }
+
     func locationManager(_ manager: CLLocationManager, didFailWithError error: Error) {
         print("location error: \(error.localizedDescription)")
     }
+    
+    func locationManager(_ manager: CLLocationManager, didChangeAuthorization status: CLAuthorizationStatus) {
+            switch status {
+            case .authorizedWhenInUse, .authorizedAlways:
+                locationManager.startUpdatingLocation() // Start updating location after permission is granted
+            case .denied, .restricted:
+                print("Location permission denied or restricted.")
+            case .notDetermined:
+                locationManager.requestWhenInUseAuthorization()
+            default:
+                break
+            }
+        }
 }
