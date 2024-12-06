@@ -7,20 +7,18 @@
 
 import UIKit
 
-
 class TableViewMedCell: UITableViewCell {
     static let identifier = "TableViewMedCell"
     var backgroundCardView: UIView!
     var labelTitle: UILabel!
-    var labelAmount: UILabel!  // Declare as optional or initialize properly
+    var labelAmount: UILabel!
     var labelDosage: UILabel!
     var labelFrequency: UILabel!
     var labelTime: UILabel!
     var checkboxButton: UIButton!
     var isChecked: Bool = false
-
-    // Closure to notify the parent view about the toggle
     var onChecklistToggle: (() -> Void)?
+    var currentDate: Date = Date()
 
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
@@ -48,7 +46,7 @@ class TableViewMedCell: UITableViewCell {
         labelTitle.textColor = .black
         labelTitle.translatesAutoresizingMaskIntoConstraints = false
 
-        labelAmount = UILabel()  // Initialize labelAmount
+        labelAmount = UILabel()
         labelAmount.font = UIFont.systemFont(ofSize: 14)
         labelAmount.textColor = .darkGray
         labelAmount.translatesAutoresizingMaskIntoConstraints = false
@@ -63,14 +61,16 @@ class TableViewMedCell: UITableViewCell {
         labelFrequency.textColor = .darkGray
         labelFrequency.translatesAutoresizingMaskIntoConstraints = false
         
-        labelTime = UILabel()  // Initialize labelAmount
+        labelTime = UILabel()
         labelTime.font = UIFont.systemFont(ofSize: 14)
         labelTime.textColor = .darkGray
         labelTime.translatesAutoresizingMaskIntoConstraints = false
 
         backgroundCardView.addSubview(labelTitle)
-        backgroundCardView.addSubview(labelAmount)  // Add to the background card view
+        backgroundCardView.addSubview(labelAmount)
         backgroundCardView.addSubview(labelDosage)
+        backgroundCardView.addSubview(labelFrequency)
+        backgroundCardView.addSubview(labelTime)
     }
 
     func setupCheckboxButton() {
@@ -86,20 +86,51 @@ class TableViewMedCell: UITableViewCell {
     @objc func toggleCheckbox() {
         isChecked.toggle()
         checkboxButton.isSelected = isChecked
-        onChecklistToggle?() // Notify the parent view about the change
+        onChecklistToggle?()
+        updateLabelAppearance()
+    }
 
+    private func updateLabelAppearance() {
         if isChecked {
             labelTitle.textColor = .gray
+            labelAmount.textColor = .gray
             labelDosage.textColor = .gray
-            let attributeString: NSMutableAttributedString = NSMutableAttributedString(string: labelTitle.text ?? "")
+            let attributeString = NSMutableAttributedString(string: labelTitle.text ?? "")
             attributeString.addAttribute(.strikethroughStyle, value: NSUnderlineStyle.single.rawValue, range: NSMakeRange(0, attributeString.length))
             labelTitle.attributedText = attributeString
         } else {
             labelTitle.textColor = .black
+            labelAmount.textColor = .darkGray
             labelDosage.textColor = .darkGray
             labelTitle.attributedText = nil
-            labelTitle.text = labelTitle.text // Reset text
+            labelTitle.text = labelTitle.text
         }
+    }
+
+    func configure(with med: Med, for date: Date) {
+        self.currentDate = date
+        
+        guard let title = med.title else {
+            labelTitle.text = "Untitled"
+            return
+        }
+
+        labelTitle.text = title
+        labelAmount.text = med.amount
+        
+        if let dosageString = med.dosage {
+            labelDosage.text = dosageString.rawValue
+        } else {
+            labelDosage.text = "Unknown dosage"
+        }
+
+        labelFrequency.text = med.frequency?.rawValue
+        labelTime.text = med.time
+        
+        isChecked = med.isCompleted(for: date)
+        checkboxButton.isSelected = isChecked
+        
+        updateLabelAppearance()
     }
 
     func initConstraints() {
@@ -120,7 +151,15 @@ class TableViewMedCell: UITableViewCell {
             labelDosage.topAnchor.constraint(equalTo: labelAmount.bottomAnchor, constant: 4),
             labelDosage.leadingAnchor.constraint(equalTo: labelTitle.leadingAnchor),
             labelDosage.trailingAnchor.constraint(equalTo: labelTitle.trailingAnchor),
-            labelDosage.bottomAnchor.constraint(equalTo: backgroundCardView.bottomAnchor, constant: -8),
+
+            labelFrequency.topAnchor.constraint(equalTo: labelDosage.bottomAnchor, constant: 4),
+            labelFrequency.leadingAnchor.constraint(equalTo: labelTitle.leadingAnchor),
+            labelFrequency.trailingAnchor.constraint(equalTo: labelTitle.trailingAnchor),
+
+            labelTime.topAnchor.constraint(equalTo: labelFrequency.bottomAnchor, constant: 4),
+            labelTime.leadingAnchor.constraint(equalTo: labelTitle.leadingAnchor),
+            labelTime.trailingAnchor.constraint(equalTo: labelTitle.trailingAnchor),
+            labelTime.bottomAnchor.constraint(equalTo: backgroundCardView.bottomAnchor, constant: -8),
 
             checkboxButton.centerYAnchor.constraint(equalTo: contentView.centerYAnchor),
             checkboxButton.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -16),
@@ -128,47 +167,4 @@ class TableViewMedCell: UITableViewCell {
             checkboxButton.heightAnchor.constraint(equalToConstant: 32),
         ])
     }
-}
-
-extension TableViewMedCell {
-    func configure(with med: Med) {
-        guard let title = med.title else {
-            labelTitle.text = "Untitled" // Provide a default value if `title` is `nil`
-            return
-        }
-
-        labelTitle.text = title
-
-        // Check if med.dosage is a String or Dosage and handle accordingly
-        if let dosageString = med.dosage {
-            // If it's a String, convert it to Dosage enum and access the rawValue
-            if let dosage = Dosage(rawValue: dosageString.rawValue) {
-                labelDosage.text = dosage.rawValue  // Use rawValue of the Dosage enum
-            } else {
-                labelDosage.text = "Unknown dosage"  // Invalid dosage string
-            }
-        } else {
-            labelDosage.text = "Unknown dosage"  // If med.dosage is nil
-        }
-        
-        labelAmount.text = med.amount // Set the amount if needed
-        checkboxButton.isSelected = med.isChecked
-        isChecked = med.isChecked
-
-        if med.isChecked {
-            labelTitle.textColor = .gray
-            labelAmount.textColor = .gray
-            labelDosage.textColor = .gray
-            let attributeString: NSMutableAttributedString = NSMutableAttributedString(string: title)
-            attributeString.addAttribute(.strikethroughStyle, value: NSUnderlineStyle.single.rawValue, range: NSMakeRange(0, attributeString.length))
-            labelTitle.attributedText = attributeString
-        } else {
-            labelTitle.textColor = .black
-            labelAmount.textColor = .darkGray
-            labelDosage.textColor = .darkGray
-            labelTitle.attributedText = nil
-            labelTitle.text = title
-        }
-    }
-
 }

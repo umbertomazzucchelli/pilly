@@ -7,7 +7,7 @@
 
 import Foundation
 
-enum Dosage: String {
+enum Dosage: String, Codable {
     case mg = "mg"
     case mcg = "mcg"
     case g = "g"
@@ -16,5 +16,3 @@ enum Dosage: String {
 
     static let allDosages = [mg, mcg, g, mL, percent]
 }
-
-

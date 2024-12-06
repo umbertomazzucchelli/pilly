@@ -84,7 +84,7 @@ class AddMedViewController: UIViewController {
                     dosage: dosageEnum,
                     frequency: frequencyEnum,
                     time: formattedTime,
-                    isChecked: false
+                    completionDates: [:]  // Initialize with empty completion dates
                 )
                 
                 saveMedicationToDatabase(med: newMed) { [weak self] success in
@@ -121,7 +121,7 @@ class AddMedViewController: UIViewController {
             "dosage": med.dosage?.rawValue as Any,
             "frequency": med.frequency?.rawValue as Any,
             "time": med.time!,
-            "isChecked": med.isChecked,
+            "completionDates": [:],  // Initialize empty completion dates map
             "createdAt": FieldValue.serverTimestamp()
         ]
         

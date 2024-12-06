@@ -29,8 +29,8 @@ class CalendarViewController: UIViewController {
         setupTableView()
         fetchAllMedications()
         NotificationCenter.default.addObserver(self, selector: #selector(handleMedicationsUpdate(_:)), name: .medicationsUpdated, object: nil)
-
     }
+    
     @objc private func handleMedicationsUpdate(_ notification: Notification) {
         guard let updatedMeds = notification.object as? [Med] else { return }
         allMedications = updatedMeds
@@ -63,12 +63,13 @@ class CalendarViewController: UIViewController {
                 self?.allMedications = snapshot?.documents.compactMap { document in
                     let data = document.data()
                     return Med(
+                        id: document.documentID,
                         title: data["title"] as? String,
                         amount: data["amount"] as? String,
                         dosage: Dosage(rawValue: (data["dosage"] as? String) ?? ""),
                         frequency: Frequency(rawValue: (data["frequency"] as? String) ?? ""),
                         time: data["time"] as? String,
-                        isChecked: data["isChecked"] as? Bool ?? false
+                        completionDates: data["completionDates"] as? [String: Bool] ?? [:]
                     )
                 } ?? []
                 
@@ -121,11 +122,47 @@ extension CalendarViewController: UITableViewDelegate, UITableViewDataSource {
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "meds", for: indexPath) as! TableViewMedCell
         let medication = medicationsForSelectedDate[indexPath.row]
-        cell.configure(with: medication)
+        
+        // If we have selected date components, convert them to a Date for checking completion
+        var dateForCompletion = Date()
+        if let selectedDate = selectedDate,
+           let date = Calendar.current.date(from: selectedDate) {
+            dateForCompletion = date
+        }
+        
+        cell.configure(with: medication, for: dateForCompletion)
+        cell.onChecklistToggle = { [weak self] in
+            if let date = self?.selectedDate,
+               let actualDate = Calendar.current.date(from: date) {
+                self?.updateMedicationStatus(medication, isCompleted: cell.isChecked, for: actualDate)
+            }
+        }
+        
         return cell
     }
     
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
         return 100
+    }
+    
+    private func updateMedicationStatus(_ med: Med, isCompleted: Bool, for date: Date) {
+        guard let userId = Auth.auth().currentUser?.uid,
+              let medId = med.id else { return }
+        
+        let dateString = Med.dateFormatter.string(from: date)
+        
+        db.collection("users").document(userId)
+            .collection("medications")
+            .document(medId)
+            .updateData([
+                "completionDates.\(dateString)": isCompleted
+            ]) { error in
+                if let error = error {
+                    print("Error updating medication status: \(error.localizedDescription)")
+                } else {
+                    print("Successfully updated medication status")
+                    self.fetchAllMedications()
+                }
+            }
     }
 }

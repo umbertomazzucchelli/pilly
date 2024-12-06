@@ -29,12 +29,10 @@ class HomeViewController: UIViewController {
     }
     
     func setupMedListView() {
-        // Initialize MedListView
         medListView = MedListView()
         medListView.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(medListView)
         
-        // Set up constraints
         NSLayoutConstraint.activate([
             medListView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
             medListView.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor),
@@ -86,32 +84,21 @@ extension HomeViewController: UITableViewDelegate {
         if editingStyle == .delete {
             guard let userId = Auth.auth().currentUser?.uid else { return }
             
-            // Get the medication to delete
             let medToDelete = medListView.meds[indexPath.row]
             
-            // Query for the document with matching title
-            db.collection("users").document(userId).collection("medications")
-                .whereField("title", isEqualTo: medToDelete.title ?? "")
-                .getDocuments { [weak self] (querySnapshot, error) in
-                    if let error = error {
-                        self?.showAlert(message: "Error deleting medication: \(error.localizedDescription)")
-                        return
-                    }
-                    
-                    // Delete the first matching document
-                    if let documentToDelete = querySnapshot?.documents.first {
-                        documentToDelete.reference.delete { [weak self] error in
-                            if let error = error {
-                                self?.showAlert(message: "Error deleting medication: \(error.localizedDescription)")
-                            } else {
-                                // Refresh the medications list after successful deletion
-                                DispatchQueue.main.async {
-                                    self?.medListView.fetchMedsFromFirestore()
-                                }
+            // Delete using document ID directly
+            if let documentId = medToDelete.id {
+                db.collection("users").document(userId).collection("medications")
+                    .document(documentId).delete { [weak self] error in
+                        if let error = error {
+                            self?.showAlert(message: "Error deleting medication: \(error.localizedDescription)")
+                        } else {
+                            DispatchQueue.main.async {
+                                self?.medListView.fetchMedsFromFirestore()
                             }
                         }
                     }
-                }
+            }
         }
     }
     
