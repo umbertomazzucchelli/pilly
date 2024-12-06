@@ -121,7 +121,7 @@ class AddMedViewController: UIViewController {
             "dosage": med.dosage?.rawValue as Any,
             "frequency": med.frequency?.rawValue as Any,
             "time": med.time!,
-            "isChecked": med.isChecked,
+            "completionDates": [:],  // Initialize empty completion dates map
             "createdAt": FieldValue.serverTimestamp()
         ]
         

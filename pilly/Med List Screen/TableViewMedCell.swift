@@ -7,7 +7,6 @@
 
 import UIKit
 
-
 class TableViewMedCell: UITableViewCell {
     static let identifier = "TableViewMedCell"
     var backgroundCardView: UIView!
