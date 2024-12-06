@@ -1,8 +1,7 @@
 //
 //  SearchTableViewManager.swift
-//  App14
-//
-//  Created by Sakib Miazi on 6/15/23.
+// Repurposed from: App14  created by Sakib Miazi on 6/14/23.
+// pilly
 //
 
 import Foundation

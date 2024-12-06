@@ -79,4 +79,24 @@ class CalendarView: UIView {
             noEventsLabel.centerYAnchor.constraint(equalTo: tableViewEvents.centerYAnchor)
         ])
     }
+    
+    func hideCheckboxButton() {
+        tableViewEvents.reloadData()
+                tableViewEvents.visibleCells.forEach { cell in
+            if let medCell = cell as? TableViewMedCell {
+                print("Hiding checkbox for cell")
+                medCell.checkboxButton.isHidden = true
+            }
+        }
+    }
+
+
+    func showCheckboxButton() {
+        tableViewEvents.visibleCells.forEach { cell in
+            if let medCell = cell as? TableViewMedCell {
+                medCell.checkboxButton.isHidden = false
+            }
+        }
+    }
+
 }

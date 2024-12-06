@@ -15,16 +15,18 @@ struct Med {
     var frequency: Frequency?
     var time: String?
     var isChecked: Bool
-    var date: Date? // Add a date property
+    var checkedDates: [Date: Bool]
 
-    init(title: String? = nil, amount: String? = nil, dosage: Dosage? = nil, frequency: Frequency? = nil,
-         time: String? = nil, isChecked: Bool = false, date: Date? = nil) {
+    init(id: String? = nil, title: String? = nil, amount: String? = nil, dosage: Dosage? = nil, frequency: Frequency? = nil,
+         time: String? = nil, isChecked: Bool = false, checkedDates: [Date: Bool] = [:]) {
+        self.id = id
         self.title = title
         self.amount = amount
         self.dosage = dosage
         self.frequency = frequency
         self.time = time
         self.isChecked = isChecked
-        self.date = date
+        self.checkedDates = checkedDates
     }
 }
+

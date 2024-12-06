@@ -25,6 +25,8 @@ class CalendarViewController: UIViewController {
         super.viewDidLoad()
         title = "Calendar"
         
+        calendarView.hideCheckboxButton() 
+        
         setupCalendarSelection()
         setupTableView()
         fetchAllMedications()
@@ -122,8 +124,25 @@ extension CalendarViewController: UITableViewDelegate, UITableViewDataSource {
         let cell = tableView.dequeueReusableCell(withIdentifier: "meds", for: indexPath) as! TableViewMedCell
         let medication = medicationsForSelectedDate[indexPath.row]
         cell.configure(with: medication)
+        cell.hideCheckboxButton()
         return cell
     }
+    
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+            let medication = medicationsForSelectedDate[indexPath.row]
+            let alert = UIAlertController(title: medication.title, message: getMedicationDetails(medication), preferredStyle: .alert)
+            
+            alert.addAction(UIAlertAction(title: "OK", style: .default))
+            present(alert, animated: true)
+        }
+        
+        private func getMedicationDetails(_ medication: Med) -> String {
+            var details = "Dosage: \(medication.dosage?.rawValue ?? "N/A")\n"
+            details += "Frequency: \(medication.frequency?.rawValue ?? "N/A")\n"
+            details += "Amount: \(medication.amount ?? "N/A")\n"
+            details += "Time: \(medication.time ?? "N/A")\n"
+            return details
+        }
     
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
         return 100

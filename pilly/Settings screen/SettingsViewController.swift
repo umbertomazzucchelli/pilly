@@ -56,21 +56,20 @@ class SettingsViewController: UIViewController {
     }
     
     @objc func onEditMedicineTapped() {
-        print("Edit Medicine button tapped")
-        // Navigate to Edit Medicine screen or show functionality
+        let editMedVC = MedicationListViewController()
+        navigationController?.pushViewController(editMedVC, animated: true)
     }
     
     @objc func onEditPasswordTapped() {
-        print("Edit Password button tapped")
-        // Navigate to Edit Password screen or show functionality
+        let editPasswordVC = EditPasswordViewController()
+        navigationController?.pushViewController(editPasswordVC, animated: true)
+
     }
     
     @objc func onLogoutButtonTapped() {
-        // Perform Firebase logout
         do {
             try Auth.auth().signOut()
             
-            // Handle the logout action and navigate back to the ViewController
             DispatchQueue.main.async {
                 let mainVC = ViewController()  // Replace with your initial ViewController
                 let navigationController = UINavigationController(rootViewController: mainVC)
@@ -78,7 +77,6 @@ class SettingsViewController: UIViewController {
                 self.view.window?.makeKeyAndVisible()
             }
         } catch {
-            // Handle any errors during sign out
             showAlert(message: "Error signing out")
         }
     }

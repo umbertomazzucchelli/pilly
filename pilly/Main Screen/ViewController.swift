@@ -110,7 +110,7 @@ class ViewController: UIViewController, AddAccountDelegate {
             title: "Welcome",
             message: "Please sign in or register to continue",
             preferredStyle: .alert)
-        
+            
         signInAlert.addTextField { textField in
             textField.placeholder = "Email"
             textField.keyboardType = .emailAddress
@@ -133,11 +133,55 @@ class ViewController: UIViewController, AddAccountDelegate {
             self?.navigationController?.pushViewController(addAccountVC, animated: true)
         }
         
+        let forgotPasswordAction = UIAlertAction(title: "Forgot Password?", style: .default) { [weak self] _ in
+            self?.resetPassword()
+        }
+        
         signInAlert.addAction(signInAction)
         signInAlert.addAction(registerAction)
+        signInAlert.addAction(forgotPasswordAction)
         present(signInAlert, animated: true)
     }
+    
+    func resetPassword() {
+        let resetPasswordAlert = UIAlertController(
+            title: "Reset Password",
+            message: "Enter your email address to receive a password reset link.",
+            preferredStyle: .alert)
+        
+        resetPasswordAlert.addTextField { textField in
+            textField.placeholder = "Email"
+            textField.keyboardType = .emailAddress
+        }
+        
+        let resetAction = UIAlertAction(title: "Reset Password", style: .default) { [weak self] _ in
+            guard let email = resetPasswordAlert.textFields?.first?.text, !email.isEmpty else {
+                self?.showAlert(message: "Please enter your email.")
+                return
+            }
+            
+            self?.sendPasswordResetEmail(email: email)
+        }
+        
+        let cancelAction = UIAlertAction(title: "Cancel", style: .cancel)
+        
+        resetPasswordAlert.addAction(resetAction)
+        resetPasswordAlert.addAction(cancelAction)
+        present(resetPasswordAlert, animated: true)
+    }
 
+    func sendPasswordResetEmail(email: String) {
+        Auth.auth().sendPasswordReset(withEmail: email) { [weak self] error in
+            if let error = error {
+                self?.showAlert(message: "Error: \(error.localizedDescription)")
+            } else {
+                self?.showAlert(message: "Password reset email sent. Please check your inbox.")
+            }
+        }
+    }
+
+
+    
     func signInToFirebase(email: String, password: String) {
         guard !email.isEmpty, !password.isEmpty else {
             showAlert(message: "Please enter your email and password.") { [weak self] _ in

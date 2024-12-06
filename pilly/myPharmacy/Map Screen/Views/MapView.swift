@@ -1,10 +1,3 @@
-//
-//  MapView.swift
-//  App14
-//
-//  Created by Sakib Miazi on 6/14/23.
-//
-
 import UIKit
 import MapKit
 

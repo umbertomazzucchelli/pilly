@@ -1,9 +1,8 @@
 //
 //  LoadPlaces.swift
-//  App14
-//
-//  Created by Sakib Miazi on 6/15/23.
-//
+// Repurposed from: App14  created by Sakib Miazi on 6/14/23.
+// pilly
+
 
 import Foundation
 import CoreLocation
@@ -20,14 +19,12 @@ extension PharmacyViewController{
         searchRequest.naturalLanguageQuery = query
 
 
-        // Set the region to an associated map view's region.
         searchRequest.region = mapView.mapView.region
 
 
         let search = MKLocalSearch(request: searchRequest)
         search.start { (response, error) in
             guard let response = response else {
-                // Handle the error.
                 return
             }
             mapItems = response.mapItems
