@@ -36,6 +36,8 @@ class AddAccountViewController: UIViewController {
 
         // Add target for register button
         addView.createAccountButton.addTarget(self, action: #selector(onCreateAccountButton), for: .touchUpInside)
+        addView.profileImageButton.addTarget(self, action: #selector(profileImageTapped), for: .touchUpInside)
+
         setupNavigation()
         addView.profileImageButton.menu = getMenuImagePicker()
     }
@@ -52,6 +54,16 @@ class AddAccountViewController: UIViewController {
         // Start registration process
         addNewAccount()
     }
+    @objc func profileImageTapped() {
+            // Present the photo picker
+            var configuration = PHPickerConfiguration()
+            configuration.filter = .images
+            configuration.selectionLimit = 1
+            
+            let picker = PHPickerViewController(configuration: configuration)
+            picker.delegate = self
+            present(picker, animated: true)
+        }
 
     func getMenuImagePicker() -> UIMenu {
         let menuItems = [

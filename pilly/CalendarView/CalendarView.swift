@@ -32,6 +32,7 @@ class CalendarView: UIView {
         calendarView.calendar = .current
         calendarView.locale = .current
         calendarView.backgroundColor = .white
+       
         calendarView.tintColor = UIColor.systemPink.withAlphaComponent(0.3)
         calendarView.translatesAutoresizingMaskIntoConstraints = false
         self.addSubview(calendarView)
@@ -41,6 +42,10 @@ class CalendarView: UIView {
         tableViewEvents = UITableView()
         tableViewEvents.register(TableViewMedCell.self, forCellReuseIdentifier: "meds")
         tableViewEvents.backgroundColor = .white
+        tableViewEvents.isScrollEnabled = true
+        tableViewEvents.rowHeight = UITableView.automaticDimension
+        tableViewEvents.estimatedRowHeight = 100
+
         tableViewEvents.translatesAutoresizingMaskIntoConstraints = false
         self.addSubview(tableViewEvents)
     }

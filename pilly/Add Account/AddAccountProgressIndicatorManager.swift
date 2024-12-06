@@ -24,15 +24,15 @@ extension AddAccountViewController:PHPickerViewControllerDelegate{
     func picker(_ picker: PHPickerViewController, didFinishPicking results: [PHPickerResult]) {
         dismiss(animated: true)
         
-        print(results)
-        
-        let itemprovider = results.map(\.itemProvider)
-        
-        for item in itemprovider{
-            if item.canLoadObject(ofClass: UIImage.self){
-                item.loadObject(ofClass: UIImage.self, completionHandler: { (image, error) in
-                    DispatchQueue.main.async{
-                        if let uwImage = image as? UIImage{
+        let itemProviders = results.map(\.itemProvider)
+        for item in itemProviders {
+            if item.canLoadObject(ofClass: UIImage.self) {
+                item.loadObject(ofClass: UIImage.self) { (image, error) in
+                    DispatchQueue.main.async {
+                        if let error = error {
+                            print("Error loading image: \(error.localizedDescription)")
+                        } else if let uwImage = image as? UIImage {
+                            print("Image successfully retrieved from device")
                             self.addView.profileImageButton.setImage(
                                 uwImage.withRenderingMode(.alwaysOriginal),
                                 for: .normal
@@ -40,10 +40,11 @@ extension AddAccountViewController:PHPickerViewControllerDelegate{
                             self.pickedImage = uwImage
                         }
                     }
-                })
+                }
             }
         }
     }
+
 }
 
 

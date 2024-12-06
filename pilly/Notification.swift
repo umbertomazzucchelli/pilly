@@ -12,6 +12,8 @@ extension Notification.Name{
     static let userLoggedin = Notification.Name("userLoggedin")
     static let userLoggedout = Notification.Name("userLoggedout")
     static let placesFromMap = Notification.Name("placesFromMap")
+    static let medicationsUpdated = Notification.Name("medicationStatusChanged")
+
 
     
     

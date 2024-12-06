@@ -7,6 +7,8 @@
 
 import UIKit
 import MapKit
+import CoreLocation
+
 
 class PharmacyViewController: UIViewController, UISearchBarDelegate{
     
@@ -22,7 +24,7 @@ class PharmacyViewController: UIViewController, UISearchBarDelegate{
         super.viewDidLoad()
         title = "Pharmacy"
         navigationController?.navigationBar.prefersLargeTitles = true
-        
+        requestLocationPermission()
         //MARK: add action for current location button tap...
         mapView.buttonCurrentLocation.addTarget(self, action: #selector(onButtonCurrentLocationTapped), for: .touchUpInside)
         
@@ -46,6 +48,14 @@ class PharmacyViewController: UIViewController, UISearchBarDelegate{
         mapView.mapView.addAnnotation(northeastern)
         mapView.mapView.delegate = self
     }
+    func requestLocationPermission() {
+            if CLLocationManager.locationServicesEnabled() {
+                locationManager.requestWhenInUseAuthorization() // Request permission for location
+                locationManager.startUpdatingLocation() // Start updating the location
+            } else {
+                print("Location services are not enabled.")
+            }
+        }
     
     @objc func onButtonCurrentLocationTapped(){
         if let uwLocation = locationManager.location{
@@ -70,6 +80,7 @@ class PharmacyViewController: UIViewController, UISearchBarDelegate{
         
         present(navForSearch, animated: true)
     }
+    
     
     //MARK: show selected place on map...
     func showSelectedPlace(placeItem: MKMapItem){

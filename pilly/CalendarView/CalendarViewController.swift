@@ -28,6 +28,16 @@ class CalendarViewController: UIViewController {
         setupCalendarSelection()
         setupTableView()
         fetchAllMedications()
+        NotificationCenter.default.addObserver(self, selector: #selector(handleMedicationsUpdate(_:)), name: .medicationsUpdated, object: nil)
+
+    }
+    @objc private func handleMedicationsUpdate(_ notification: Notification) {
+        guard let updatedMeds = notification.object as? [Med] else { return }
+        allMedications = updatedMeds
+        
+        if let selectedDate = selectedDate {
+            updateMedicationsForSelectedDate(selectedDate)
+        }
     }
     
     private func setupCalendarSelection() {

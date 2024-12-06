@@ -14,7 +14,7 @@ struct User: Codable {
     var email: String
     var phone: String? // Optional phone field
 
-    init(name: String, email: String, phone: String? = nil) {
+    init(name: String, email: String, phone: String?) {
         self.name = name
         self.email = email
         self.phone = phone

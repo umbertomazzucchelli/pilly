@@ -50,8 +50,9 @@ class SettingsViewController: UIViewController {
     // MARK: - Button Actions
     
     @objc func onEditProfileTapped() {
-        print("Edit Profile button tapped")
-        // Navigate to Edit Profile screen or show functionality
+        let editProfileVC = EditProfileViewController()
+        navigationController?.pushViewController(editProfileVC, animated: true)
+          
     }
     
     @objc func onEditMedicineTapped() {
@@ -88,3 +89,4 @@ class SettingsViewController: UIViewController {
         present(alert, animated: true, completion: nil)
     }
 }
+
