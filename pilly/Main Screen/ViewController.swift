@@ -227,8 +227,12 @@ class ViewController: UIViewController, AddAccountDelegate {
     func saveMedicationToFirestore(med: Med, userId: String) {
         let medicationData: [String: Any] = [
             "title": med.title ?? "",
-            "dosage": med.dosage ?? "",
-            "time": med.time as Any
+            "amount": med.amount ?? "",
+            "dosage": med.dosage?.rawValue ?? "",
+            "frequency": med.frequency?.rawValue ?? "",
+            "time": med.time ?? "",
+            "completionDates": [:],
+            "createdAt": FieldValue.serverTimestamp()
         ]
         
         let userDocRef = database.collection("users").document(userId)

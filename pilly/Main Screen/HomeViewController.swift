@@ -19,6 +19,33 @@ class HomeViewController: UIViewController {
         view.backgroundColor = .white
         title = "My Medications"
 
+        let testMed = Med(
+            title: "Test Medication",
+            amount: "5",  // Example amount
+            dosage: .mg,  // Example dosage
+            frequency: .daily,  // Example frequency
+            time: "08:00 AM",  // Example time
+            isChecked: false,  // Example checked status
+            checkedDates: [:]  // Empty dictionary for checked dates
+        )
+
+        // Post notification to trigger edit view
+        DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+            NotificationCenter.default.post(
+                name: Notification.Name("MedicationClicked"),
+                object: testMed
+            )
+        }
+
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(handleMedicationClicked(_:)),
+            name: Notification.Name("MedicationClicked"),
+            object: nil
+        )
+
+        print("Observer registered")
+
         setupMedListView()
         setupAddButton()
     }
@@ -30,10 +57,12 @@ class HomeViewController: UIViewController {
     }
     
     func setupMedListView() {
+        // Initialize MedListView
         medListView = MedListView()
         medListView.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(medListView)
         
+        // Set up constraints
         NSLayoutConstraint.activate([
             medListView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
             medListView.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor),
@@ -49,6 +78,25 @@ class HomeViewController: UIViewController {
             action: #selector(addMedicationTapped)
         )
         navigationItem.rightBarButtonItem = addButton
+    }
+    @objc func handleMedicationClicked(_ notification: Notification) {
+        print("Notification received in handleMedicationClicked")
+
+        guard let med = notification.object as? Med else {
+            print("Notification object is not of type Med")
+            return
+        }
+
+        print("Medication: \(med.title)")
+        navigateToEditView(with: med)
+    }
+
+
+    func navigateToEditView(with medication: Med) {
+        let editMedicationController = EditMedicationViewController()
+        
+        editMedicationController.selectedMedication = medication
+        navigationController?.pushViewController(editMedicationController, animated: true)
     }
 
     
@@ -90,28 +138,32 @@ extension HomeViewController: UITableViewDelegate {
         if editingStyle == .delete {
             guard let userId = Auth.auth().currentUser?.uid else { return }
             
+            // Get the medication to delete
             let medToDelete = medListView.meds[indexPath.row]
             
+            // Query for the document with matching title
             db.collection("users").document(userId).collection("medications")
-                .whereField("id", isEqualTo: medToDelete.id ?? "")
+                .whereField("title", isEqualTo: medToDelete.title ?? "")
                 .getDocuments { [weak self] (querySnapshot, error) in
                     if let error = error {
                         self?.showAlert(message: "Error deleting medication: \(error.localizedDescription)")
                         return
                     }
                     
+                    // Delete the first matching document
                     if let documentToDelete = querySnapshot?.documents.first {
                         documentToDelete.reference.delete { [weak self] error in
                             if let error = error {
                                 self?.showAlert(message: "Error deleting medication: \(error.localizedDescription)")
                             } else {
+                                // Refresh the medications list after successful deletion
                                 DispatchQueue.main.async {
                                     self?.medListView.fetchMedsFromFirestore()
                                 }
                             }
                         }
                     }
-            }
+                }
         }
     }
     

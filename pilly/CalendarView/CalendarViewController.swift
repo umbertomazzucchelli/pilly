@@ -35,7 +35,8 @@ class CalendarViewController: UIViewController {
     
     @objc private func handleMedicationsUpdate(_ notification: Notification) {
         guard let updatedMeds = notification.object as? [Med] else { return }
-        allMedications = updatedMeds
+           allMedications = updatedMeds
+           fetchAllMedications()
         
         if let selectedDate = selectedDate {
             updateMedicationsForSelectedDate(selectedDate)
