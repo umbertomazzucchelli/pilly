@@ -183,16 +183,20 @@ class ViewController: UIViewController, AddAccountDelegate {
     func saveMedicationToFirestore(med: Med, userId: String) {
         let medicationData: [String: Any] = [
             "title": med.title ?? "",
-            "dosage": med.dosage ?? "",
-            "time": med.time as Any
+            "amount": med.amount ?? "",
+            "dosage": med.dosage?.rawValue ?? "",
+            "frequency": med.frequency?.rawValue ?? "",
+            "time": med.time ?? "",
+            "completionDates": [:],
+            "createdAt": FieldValue.serverTimestamp()
         ]
         
         let userDocRef = database.collection("users").document(userId)
-        userDocRef.updateData([
-            "medications": FieldValue.arrayUnion([medicationData])
-        ]) { error in
+            .collection("medications").document()
+            
+        userDocRef.setData(medicationData) { [weak self] error in
             if let error = error {
-                self.showAlert(message: "Failed to save medication: \(error.localizedDescription)")
+                self?.showAlert(message: "Failed to save medication: \(error.localizedDescription)")
             } else {
                 print("Medication saved successfully under user ID: \(userId)")
             }
