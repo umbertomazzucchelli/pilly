@@ -7,7 +7,7 @@
 
 import Foundation
 
-struct Med {
+struct Med: Codable {
     var id: String?
     var title: String?
     var amount: String?

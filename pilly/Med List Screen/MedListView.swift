@@ -133,8 +133,6 @@ class MedListView: UIView, UITableViewDelegate, UITableViewDataSource, UISearchB
 
     // MARK: - Firestore Data Fetching
     func fetchMedsFromFirestore() {
-        let db = Firestore.firestore()
-
         guard let user = Auth.auth().currentUser else {
             print("User not authenticated.")
             return

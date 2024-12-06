@@ -30,12 +30,10 @@ class HomeViewController: UIViewController {
     }
     
     func setupMedListView() {
-        // Initialize MedListView
         medListView = MedListView()
         medListView.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(medListView)
         
-        // Set up constraints
         NSLayoutConstraint.activate([
             medListView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
             medListView.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor),
@@ -113,7 +111,7 @@ extension HomeViewController: UITableViewDelegate {
                             }
                         }
                     }
-                }
+            }
         }
     }
     
