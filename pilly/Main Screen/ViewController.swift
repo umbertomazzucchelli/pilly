@@ -50,9 +50,7 @@ class ViewController: UIViewController, AddAccountDelegate {
 
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
-        if let handleAuth = handleAuth {
-            Auth.auth().removeStateDidChangeListener(handleAuth)
-        }
+
     }
 
     override func viewDidLoad() {

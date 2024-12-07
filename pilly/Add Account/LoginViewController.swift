@@ -9,11 +9,6 @@ import UIKit
 import FirebaseAuth
 
 class LoginViewController: UIViewController, AddAccountDelegate {
-    func didCompleteAccountCreation() {
-        let medMainVC = HomeViewController()  // Initialize your MedMainViewController
-        navigationController?.pushViewController(medMainVC, animated: true)
-    }
-    
     let mainScreenView = MainScreenView()
     let notificationCenter = NotificationCenter.default
     var loginSuccessMessageLabel: UILabel!  // Label for the success message
@@ -25,17 +20,18 @@ class LoginViewController: UIViewController, AddAccountDelegate {
     override func viewDidLoad() {
         super.viewDidLoad()
         title = "Login"
-        
-        
+        setupLoginSuccessLabel()
+    }
+    
+    private func setupLoginSuccessLabel() {
         loginSuccessMessageLabel = UILabel()
         loginSuccessMessageLabel.frame = CGRect(x: 0, y: 0, width: view.frame.width, height: 40)
         loginSuccessMessageLabel.textAlignment = .center
         loginSuccessMessageLabel.textColor = .green
-        loginSuccessMessageLabel.isHidden = true  // Hide it initially
+        loginSuccessMessageLabel.isHidden = true
         view.addSubview(loginSuccessMessageLabel)
     }
 
-    
     func presentLoginScreen() {
         let signInAlert = UIAlertController(
             title: "Welcome",
@@ -67,39 +63,44 @@ class LoginViewController: UIViewController, AddAccountDelegate {
         
         signInAlert.addAction(signInAction)
         signInAlert.addAction(registerAction)
-        
-        self.present(signInAlert, animated: true)
+        present(signInAlert, animated: true)
     }
 
     func signInToFirebase(email: String, password: String) {
         guard !email.isEmpty, !password.isEmpty else {
-            showAlert(message: "Please enter your email and password.") { [weak self] _ in
-                self?.presentLoginScreen()
-            }
+            showAlert(message: "Please enter your email and password.")
             return
         }
 
-        Auth.auth().signIn(withEmail: email, password: password) { [weak self] result, error in
-            if let error = error {
-                self?.showAlert(message: error.localizedDescription) { [weak self] _ in
-                    self?.presentLoginScreen()
+        AuthManager.shared.signIn(email: email, password: password) { [weak self] result in
+            guard let self = self else { return }
+            
+            switch result {
+            case .success:
+                self.showLoginSuccessMessage()
+                NotificationManager.shared.post(name: .userLoggedin)
+                
+                DispatchQueue.main.async {
+                    let mainTabBarController = MainTabBarController()
+                    if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
+                       let window = windowScene.windows.first {
+                        window.rootViewController = mainTabBarController
+                        window.makeKeyAndVisible()
+                    }
                 }
-                return
+                
+            case .failure(let error):
+                self.showAlert(message: error.localizedDescription)
             }
-            
-            // Show success message
-            self?.showLoginSuccessMessage()
-            
-            // Post notification to notify user logged in
-            self?.notificationCenter.post(name: .userLoggedin, object: nil)
-            
-            // Replace the root view controller with ViewController
-            if let appDelegate = UIApplication.shared.delegate as? AppDelegate {
-                let viewController = ViewController()
-                let navigationController = UINavigationController(rootViewController: viewController)
-                appDelegate.window?.rootViewController = navigationController
-                appDelegate.window?.makeKeyAndVisible()
-            }
+        }
+    }
+    
+    func didCompleteAccountCreation() {
+        let mainTabBarController = MainTabBarController()
+        if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
+           let window = windowScene.windows.first {
+            window.rootViewController = mainTabBarController
+            window.makeKeyAndVisible()
         }
     }
     

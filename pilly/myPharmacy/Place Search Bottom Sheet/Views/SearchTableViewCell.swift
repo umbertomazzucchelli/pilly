@@ -6,48 +6,62 @@
 import UIKit
 
 class SearchTableViewCell: UITableViewCell {
-
     var wrapperCellView: UIView!
     var labelTitle: UILabel!
+    var labelAddress: UILabel!
     
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
         setupWrapperCellVIew()
         setupLabelTitle()
+        setupLabelAddress()
         initConstraints()
     }
     
-    func setupWrapperCellVIew(){
+    func setupWrapperCellVIew() {
         wrapperCellView = UITableViewCell()
         wrapperCellView.backgroundColor = .white
         wrapperCellView.translatesAutoresizingMaskIntoConstraints = false
         self.addSubview(wrapperCellView)
     }
-    func setupLabelTitle(){
+    
+    func setupLabelTitle() {
         labelTitle = UILabel()
-        labelTitle.font = UIFont.boldSystemFont(ofSize: 20)
+        labelTitle.font = UIFont.boldSystemFont(ofSize: 16)
         labelTitle.translatesAutoresizingMaskIntoConstraints = false
         wrapperCellView.addSubview(labelTitle)
     }
-    func initConstraints(){
+    
+    func setupLabelAddress() {
+        labelAddress = UILabel()
+        labelAddress.font = UIFont.systemFont(ofSize: 14)
+        labelAddress.textColor = .gray
+        labelAddress.numberOfLines = 2
+        labelAddress.translatesAutoresizingMaskIntoConstraints = false
+        wrapperCellView.addSubview(labelAddress)
+    }
+    
+    func initConstraints() {
         NSLayoutConstraint.activate([
-            wrapperCellView.topAnchor.constraint(equalTo: self.topAnchor,constant: 10),
+            wrapperCellView.topAnchor.constraint(equalTo: self.topAnchor, constant: 10),
             wrapperCellView.leadingAnchor.constraint(equalTo: self.leadingAnchor, constant: 10),
             wrapperCellView.bottomAnchor.constraint(equalTo: self.bottomAnchor, constant: -10),
             wrapperCellView.trailingAnchor.constraint(equalTo: self.trailingAnchor, constant: -10),
             
             labelTitle.topAnchor.constraint(equalTo: wrapperCellView.topAnchor, constant: 8),
             labelTitle.leadingAnchor.constraint(equalTo: wrapperCellView.leadingAnchor, constant: 16),
-            labelTitle.heightAnchor.constraint(equalToConstant: 20),
-            labelTitle.widthAnchor.constraint(lessThanOrEqualTo: wrapperCellView.widthAnchor),
+            labelTitle.trailingAnchor.constraint(equalTo: wrapperCellView.trailingAnchor, constant: -16),
             
-            wrapperCellView.heightAnchor.constraint(equalToConstant: 40)
+            labelAddress.topAnchor.constraint(equalTo: labelTitle.bottomAnchor, constant: 4),
+            labelAddress.leadingAnchor.constraint(equalTo: labelTitle.leadingAnchor),
+            labelAddress.trailingAnchor.constraint(equalTo: labelTitle.trailingAnchor),
+            labelAddress.bottomAnchor.constraint(equalTo: wrapperCellView.bottomAnchor, constant: -8),
+            
+            wrapperCellView.heightAnchor.constraint(greaterThanOrEqualToConstant: 70)
         ])
-        
     }
     
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
-
 }
