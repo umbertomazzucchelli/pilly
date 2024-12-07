@@ -1,142 +1,176 @@
 //
 //  ProfileView.swift
-//  My_Profile
+//  pilly
 //
-//  Created by MAD4 on 11/18/24.
+//  Created by Umberto Mazzucchelli on 12/7/24.
 //
 
 import UIKit
+import Firebase
 
 class ProfileView: UIView {
     
     var userInfoButton: UIButton!
-    var label: UILabel!
+    var nameLabel: UILabel!
     var personalInfoButton: UIButton!
     var myPharmacyButton: UIButton!
     var settingsButton: UIButton!
-    var phoneLabel: UILabel!
 
     override init(frame: CGRect) {
         super.init(frame: frame)
         backgroundColor = .white
-        setupuserInfoButton()
-        setuplabel()
-        setuppersonalInfoButton()
-        setupmyPharmacyButton()
-        setupsettingsButton()
-        setupPhoneLabel()
+        setupUserInfoButton()
+        setupNameLabel()
+        setupPersonalInfoButton()
+        setupMyPharmacyButton()
+        setupSettingsButton()
         initConstraints()
+        loadUserData()
     }
     
-    func setupuserInfoButton() {
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+    
+    private func setupUserInfoButton() {
         userInfoButton = UIButton(type: .system)
-        userInfoButton.setImage(UIImage(systemName: "person"), for: .normal)
-        userInfoButton.titleLabel?.font = UIFont(name: "Comic Sans MS", size: 28) // Set Comic Sans font
+        userInfoButton.setImage(UIImage(systemName: "person.circle.fill"), for: .normal)
+        userInfoButton.tintColor = .systemBlue
+        userInfoButton.contentVerticalAlignment = .fill
+        userInfoButton.contentHorizontalAlignment = .fill
         userInfoButton.translatesAutoresizingMaskIntoConstraints = false
-        self.addSubview(userInfoButton)
-    }
-
-    func setuplabel() {
-        label = UILabel()
-        label.text = "User Info"
-        label.font = UIFont(name: "Open Sans MS", size: 28) // Set Comic Sans font
-        label.textColor = .black
-        label.translatesAutoresizingMaskIntoConstraints = false
-        self.addSubview(label)
+        addSubview(userInfoButton)
     }
     
-    func setuppersonalInfoButton() {
+    private func setupNameLabel() {
+        nameLabel = UILabel()
+        nameLabel.font = .systemFont(ofSize: 24, weight: .bold)
+        nameLabel.textAlignment = .center
+        nameLabel.translatesAutoresizingMaskIntoConstraints = false
+        addSubview(nameLabel)
+    }
+    
+    func setupPersonalInfoButton() {
         personalInfoButton = UIButton(type: .system)
         personalInfoButton.setTitle("Personal Info", for: .normal)
-        personalInfoButton.titleLabel?.font = UIFont(name: "Comic Sans MS", size: 28) // Set Comic Sans font
-        personalInfoButton.setImage(UIImage(systemName: "info.circle.fill"), for: .normal)
-        personalInfoButton.tintColor = .white
+        personalInfoButton.titleLabel?.font = UIFont.systemFont(ofSize: 18)
+        personalInfoButton.setImage(UIImage(systemName: "person.fill"), for: .normal)
         personalInfoButton.backgroundColor = UIColor(red: 0.702, green: 0.922, blue: 0.949, alpha: 1)
-        personalInfoButton.layer.cornerRadius = 5
-        personalInfoButton.layer.shadowOffset = .zero
+        personalInfoButton.tintColor = .white
+        personalInfoButton.layer.cornerRadius = 10
         personalInfoButton.translatesAutoresizingMaskIntoConstraints = false
-        self.addSubview(personalInfoButton)
+        addSubview(personalInfoButton)
     }
     
-    func setupmyPharmacyButton() {
+    func setupMyPharmacyButton() {
         myPharmacyButton = UIButton(type: .system)
-        myPharmacyButton.setTitle("My Pharmacy", for: .normal)
-        myPharmacyButton.titleLabel?.font = UIFont(name: "Comic Sans MS", size: 28) // Set Comic Sans font
-        myPharmacyButton.setImage(UIImage(systemName: "location.magnifyingglass"), for: .normal)
+        myPharmacyButton.setTitle("Set My Pharmacy", for: .normal)
+        myPharmacyButton.titleLabel?.font = UIFont.systemFont(ofSize: 18)
+        myPharmacyButton.setImage(UIImage(systemName: "cross.fill"), for: .normal)
         myPharmacyButton.backgroundColor = UIColor.systemPink.withAlphaComponent(0.3)
         myPharmacyButton.tintColor = .white
-        myPharmacyButton.layer.cornerRadius = 5
-        myPharmacyButton.layer.shadowOffset = .zero
+        myPharmacyButton.layer.cornerRadius = 10
         myPharmacyButton.translatesAutoresizingMaskIntoConstraints = false
-        self.addSubview(myPharmacyButton)
+        addSubview(myPharmacyButton)
     }
     
-    func setupsettingsButton() {
+    func setupSettingsButton() {
         settingsButton = UIButton(type: .system)
         settingsButton.setTitle("Settings", for: .normal)
-        settingsButton.titleLabel?.font = UIFont(name: "Comic Sans MS", size: 28) // Set Comic Sans font
-        settingsButton.setImage(UIImage(systemName: "slider.horizontal.3"), for: .normal)
-        settingsButton.tintColor = .white
+        settingsButton.titleLabel?.font = UIFont.systemFont(ofSize: 18)
+        settingsButton.setImage(UIImage(systemName: "gearshape.fill"), for: .normal)
         settingsButton.backgroundColor = UIColor(red: 0.702, green: 0.922, blue: 0.949, alpha: 1)
-        settingsButton.layer.cornerRadius = 5
-        settingsButton.layer.shadowOffset = .zero
+        settingsButton.tintColor = .white
+        settingsButton.layer.cornerRadius = 10
         settingsButton.translatesAutoresizingMaskIntoConstraints = false
-        self.addSubview(settingsButton)
+        addSubview(settingsButton)
     }
     
-    func setupPhoneLabel() {
-        phoneLabel = UILabel()
-        phoneLabel.font = UIFont(name: "Open Sans MS", size: 16)
-        phoneLabel.textColor = .gray
-        phoneLabel.translatesAutoresizingMaskIntoConstraints = false
-        phoneLabel.isHidden = true // Hidden by default
-        self.addSubview(phoneLabel)
-    }
-
-    func initConstraints() {
-        // Ensure all buttons are the same size by setting explicit width and height
-        let buttonWidth: CGFloat = 231
-        let buttonHeight: CGFloat = 55
+    private func initConstraints() {
+        let buttonWidth: CGFloat = UIScreen.main.bounds.width - 40 // 20 points padding on each side
+        let buttonHeight: CGFloat = 50
         
         NSLayoutConstraint.activate([
-            userInfoButton.topAnchor.constraint(equalTo: self.safeAreaLayoutGuide.topAnchor, constant: 128),
-            userInfoButton.centerXAnchor.constraint(equalTo: self.safeAreaLayoutGuide.centerXAnchor),
-            userInfoButton.widthAnchor.constraint(equalToConstant: buttonWidth),
-            userInfoButton.heightAnchor.constraint(equalToConstant: buttonHeight),
+            // User Info Button (Profile Picture)
+            userInfoButton.topAnchor.constraint(equalTo: safeAreaLayoutGuide.topAnchor, constant: 20),
+            userInfoButton.centerXAnchor.constraint(equalTo: centerXAnchor),
+            userInfoButton.widthAnchor.constraint(equalToConstant: 100),
+            userInfoButton.heightAnchor.constraint(equalToConstant: 100),
             
-            label.topAnchor.constraint(equalTo: userInfoButton.bottomAnchor, constant: 32),
-            label.centerXAnchor.constraint(equalTo: self.safeAreaLayoutGuide.centerXAnchor),
+            // Name Label
+            nameLabel.topAnchor.constraint(equalTo: userInfoButton.bottomAnchor, constant: 16),
+            nameLabel.centerXAnchor.constraint(equalTo: centerXAnchor),
+            nameLabel.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 20),
+            nameLabel.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -20),
             
-            phoneLabel.topAnchor.constraint(equalTo: label.bottomAnchor, constant: 8),
-            phoneLabel.centerXAnchor.constraint(equalTo: self.safeAreaLayoutGuide.centerXAnchor),
-            
-            personalInfoButton.topAnchor.constraint(equalTo: label.bottomAnchor, constant: 64),
-            personalInfoButton.centerXAnchor.constraint(equalTo: self.safeAreaLayoutGuide.centerXAnchor),
+            // Personal Info Button
+            personalInfoButton.topAnchor.constraint(equalTo: nameLabel.bottomAnchor, constant: 40),
+            personalInfoButton.centerXAnchor.constraint(equalTo: centerXAnchor),
             personalInfoButton.widthAnchor.constraint(equalToConstant: buttonWidth),
             personalInfoButton.heightAnchor.constraint(equalToConstant: buttonHeight),
             
-            myPharmacyButton.topAnchor.constraint(equalTo: personalInfoButton.bottomAnchor, constant: 32),
-            myPharmacyButton.centerXAnchor.constraint(equalTo: self.safeAreaLayoutGuide.centerXAnchor),
+            // My Pharmacy Button
+            myPharmacyButton.topAnchor.constraint(equalTo: personalInfoButton.bottomAnchor, constant: 20),
+            myPharmacyButton.centerXAnchor.constraint(equalTo: centerXAnchor),
             myPharmacyButton.widthAnchor.constraint(equalToConstant: buttonWidth),
             myPharmacyButton.heightAnchor.constraint(equalToConstant: buttonHeight),
             
-            settingsButton.topAnchor.constraint(equalTo: myPharmacyButton.bottomAnchor, constant: 32),
-            settingsButton.centerXAnchor.constraint(equalTo: self.safeAreaLayoutGuide.centerXAnchor),
+            // Settings Button
+            settingsButton.topAnchor.constraint(equalTo: myPharmacyButton.bottomAnchor, constant: 20),
+            settingsButton.centerXAnchor.constraint(equalTo: centerXAnchor),
             settingsButton.widthAnchor.constraint(equalToConstant: buttonWidth),
             settingsButton.heightAnchor.constraint(equalToConstant: buttonHeight)
         ])
     }
     
-    func updatePhoneLabel(with phone: String?) {
-        if let phone = phone, !phone.isEmpty {
-            phoneLabel.text = "Phone: \(phone)"
-            phoneLabel.isHidden = false
-        } else {
-            phoneLabel.isHidden = true
+    private func loadUserData() {
+        guard let userId = Auth.auth().currentUser?.uid else { return }
+        
+        let db = Firestore.firestore()
+        db.collection("users").document(userId).getDocument { [weak self] document, error in
+            guard let self = self,
+                  let data = document?.data(),
+                  error == nil else { return }
+            
+            DispatchQueue.main.async {
+                if let firstName = data["firstName"] as? String,
+                   let lastName = data["lastName"] as? String {
+                    self.nameLabel.text = "\(firstName) \(lastName)"
+                }
+            }
         }
     }
     
-    required init?(coder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
+    func updateFavoritePharmacy() {
+        PharmacyManager.shared.getFavoritePharmacy { [weak self] result in
+            DispatchQueue.main.async {
+                switch result {
+                case .success(let pharmacy):
+                    if let pharmacy = pharmacy {
+                        var config = UIButton.Configuration.filled()
+                        config.title = "My Pharmacy: \(pharmacy.name)"
+                        
+                        // Only show address if it's not empty
+                        if !pharmacy.address.isEmpty && pharmacy.address != "No address available" {
+                            config.subtitle = pharmacy.address
+                        }
+                        
+                        config.image = UIImage(systemName: "location.magnifyingglass")
+                        config.imagePlacement = .leading
+                        config.imagePadding = 8
+                        config.titleAlignment = .leading
+                        config.background.backgroundColor = UIColor.systemPink.withAlphaComponent(0.3)
+                        
+                        self?.myPharmacyButton.configuration = config
+                    } else {
+                        // No favorite pharmacy set
+                        self?.myPharmacyButton.setTitle("Set My Pharmacy", for: .normal)
+                    }
+                case .failure(let error):
+                    print("Error fetching favorite pharmacy: \(error)")
+                    self?.myPharmacyButton.setTitle("Set My Pharmacy", for: .normal)
+                }
+            }
+        }
     }
 }

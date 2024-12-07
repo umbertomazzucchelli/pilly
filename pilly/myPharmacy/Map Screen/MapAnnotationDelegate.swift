@@ -30,21 +30,9 @@ extension PharmacyViewController: MKMapViewDelegate{
     }
     
     func mapView(_ mapView: MKMapView, annotationView view: MKAnnotationView, calloutAccessoryControlTapped control: UIControl) {
+        guard let annotation = view.annotation as? Place,
+              let mapItem = annotation.mapItem else { return }
         
-        guard let annotation = view.annotation as? Place else { return }
-        
-        let ac = UIAlertController(
-            title: annotation.title,
-            message: "Navigate to \(annotation.title!) now?",
-            preferredStyle: .alert
-        )
-        ac.addAction(UIAlertAction(title: "Navigate", style: .default, handler: {_ in
-            let launchOptions = [
-                MKLaunchOptionsDirectionsModeKey: MKLaunchOptionsDirectionsModeDriving
-            ]
-            annotation.mapItem?.openInMaps(launchOptions: launchOptions)
-        }))
-        ac.addAction(UIAlertAction(title: "Cancel", style: .cancel))
-        present(ac, animated: true)
+        showPharmacyOptions(for: mapItem)
     }
 }

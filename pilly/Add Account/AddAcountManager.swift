@@ -14,7 +14,9 @@ import Foundation
 extension AddAccountViewController {
     func addNewAccount() {
         guard let email = addView.emailTextField.text,
-              let password = addView.passwordTextField.text
+              let password = addView.passwordTextField.text,
+              let firstName = addView.firstNameTextField.text,
+              let lastName = addView.lastNameTextField.text
         else { return }
 
         Auth.auth().createUser(withEmail: email, password: password) { [weak self] authResult, error in
@@ -46,21 +48,34 @@ extension AddAccountViewController {
                             return
                         }
                         let profileImageUrl = url?.absoluteString ?? ""
-                        self.saveUserData(userId: userId, email: email, profileImageUrl: profileImageUrl)
+                        self.saveUserData(
+                            userId: userId,
+                            firstName: firstName,
+                            lastName: lastName,
+                            email: email,
+                            profileImageUrl: profileImageUrl
+                        )
                     }
                 }
             } else {
                 // Save user data without profile image
-                self.saveUserData(userId: userId, email: email, profileImageUrl: nil)
+                self.saveUserData(
+                    userId: userId,
+                    firstName: firstName,
+                    lastName: lastName,
+                    email: email,
+                    profileImageUrl: nil
+                )
             }
         }
     }
 
-    private func saveUserData(userId: String, email: String, profileImageUrl: String?) {
+    private func saveUserData(userId: String, firstName: String, lastName: String, email: String, profileImageUrl: String?) {
         let userData: [String: Any] = [
+            "firstName": firstName,
+            "lastName": lastName,
             "email": email,
             "phone": addView.phoneTextField.text ?? "",
-            "name": addView.nameTextField.text ?? "",
             "profileImageUrl": profileImageUrl ?? ""
         ]
 
@@ -75,9 +90,9 @@ extension AddAccountViewController {
         }
     }
 
-    func setNameOfTheUserInFirebaseAuth(name: String) {
+    func setNameOfTheUserInFirebaseAuth(firstName: String, lastName: String) {
         let changeRequest = Auth.auth().currentUser?.createProfileChangeRequest()
-        changeRequest?.displayName = name
+        changeRequest?.displayName = "\(firstName) \(lastName)"
         changeRequest?.commitChanges { [weak self] error in
             if let error = error {
                 print("Error updating profile: \(error.localizedDescription)")

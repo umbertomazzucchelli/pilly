@@ -17,6 +17,24 @@ class AddAccountView: UIView {
         return stack
     }()
     
+    private(set) lazy var firstNameTextField: UITextField = {
+        let textField = UITextField()
+        textField.placeholder = "First Name"
+        textField.borderStyle = .roundedRect
+        textField.backgroundColor = .systemBackground
+        textField.autocapitalizationType = .words
+        return textField
+    }()
+    
+    private(set) lazy var lastNameTextField: UITextField = {
+        let textField = UITextField()
+        textField.placeholder = "Last Name"
+        textField.borderStyle = .roundedRect
+        textField.backgroundColor = .systemBackground
+        textField.autocapitalizationType = .words
+        return textField
+    }()
+    
     private(set) lazy var emailTextField: UITextField = {
         let textField = UITextField()
         textField.placeholder = "Email"
@@ -35,15 +53,6 @@ class AddAccountView: UIView {
         textField.backgroundColor = .systemBackground
         textField.isSecureTextEntry = true
         textField.textContentType = nil
-        return textField
-    }()
-    
-    private(set) lazy var nameTextField: UITextField = {
-        let textField = UITextField()
-        textField.placeholder = "Name"
-        textField.borderStyle = .roundedRect
-        textField.backgroundColor = .systemBackground
-        textField.autocapitalizationType = .words
         return textField
     }()
     
@@ -97,9 +106,10 @@ class AddAccountView: UIView {
         addSubview(profileImageButton)
         addSubview(createAccountButton)
         
+        stackView.addArrangedSubview(firstNameTextField)
+        stackView.addArrangedSubview(lastNameTextField)
         stackView.addArrangedSubview(emailTextField)
         stackView.addArrangedSubview(passwordTextField)
-        stackView.addArrangedSubview(nameTextField)
         stackView.addArrangedSubview(phoneTextField)
         
         setupConstraints()
@@ -107,28 +117,19 @@ class AddAccountView: UIView {
     
     private func setupConstraints() {
         NSLayoutConstraint.activate([
-            // Stack view constraints - now starting from top of view
             stackView.topAnchor.constraint(equalTo: safeAreaLayoutGuide.topAnchor, constant: 20),
             stackView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 24),
             stackView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -24),
             
-            // Profile image button constraints
             profileImageButton.topAnchor.constraint(equalTo: stackView.bottomAnchor, constant: 32),
             profileImageButton.centerXAnchor.constraint(equalTo: centerXAnchor),
             profileImageButton.widthAnchor.constraint(equalToConstant: 100),
             profileImageButton.heightAnchor.constraint(equalToConstant: 100),
             
-            // Create account button constraints
             createAccountButton.bottomAnchor.constraint(equalTo: safeAreaLayoutGuide.bottomAnchor, constant: -30),
             createAccountButton.centerXAnchor.constraint(equalTo: centerXAnchor)
         ])
         
         createAccountButton.translatesAutoresizingMaskIntoConstraints = false
-    }
-    
-    // MARK: - Public Methods
-    func updateProfileImage(_ image: UIImage) {
-        profileImageButton.setImage(image, for: .normal)
-        profileImageButton.contentMode = .scaleAspectFill
     }
 }
