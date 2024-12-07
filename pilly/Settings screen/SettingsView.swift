@@ -103,7 +103,6 @@ class SettingsView: UIView {
         button.layer.cornerRadius = 5
         button.layer.shadowOffset = .zero
         button.translatesAutoresizingMaskIntoConstraints = false
-        button.titleEdgeInsets = UIEdgeInsets(top: 0, left: 10, bottom: 0, right: 0) // Space between icon and title
         return button
     }
 }

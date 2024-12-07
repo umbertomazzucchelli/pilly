@@ -18,7 +18,7 @@ class Place: NSObject, MKAnnotation {
     }
     
     var mapItem: MKMapItem?{
-        guard let location = title else{
+        guard title != nil else{
             return nil
         }
         
