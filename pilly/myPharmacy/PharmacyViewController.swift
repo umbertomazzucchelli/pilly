@@ -24,36 +24,69 @@ class PharmacyViewController: UIViewController, UISearchBarDelegate{
         super.viewDidLoad()
         title = "Pharmacy"
         navigationController?.navigationBar.prefersLargeTitles = true
+        
+        // Setup location manager before requesting permissions
+        locationManager.delegate = self
+        locationManager.desiredAccuracy = kCLLocationAccuracyBest
+        
+        // Request permission
         requestLocationPermission()
-        //MARK: add action for current location button tap...
+        
+        // Add action for current location button tap
         mapView.buttonCurrentLocation.addTarget(self, action: #selector(onButtonCurrentLocationTapped), for: .touchUpInside)
         
-        //MARK: add action for bottom search button tap...
+        // Add action for bottom search button tap
         mapView.buttonSearch.addTarget(self, action: #selector(onButtonSearchTapped), for: .touchUpInside)
         
-        //MARK: setting up location manager...
-
-        
-        //MARK: center the map view to current location when the app loads...
-        onButtonCurrentLocationTapped()
-        
-     
         mapView.mapView.delegate = self
     }
+
     func requestLocationPermission() {
-            if CLLocationManager.locationServicesEnabled() {
-                locationManager.requestWhenInUseAuthorization() // Request permission for location
-                locationManager.startUpdatingLocation() // Start updating the location
-            } else {
-                print("Location services are not enabled.")
-            }
+        switch locationManager.authorizationStatus {
+        case .notDetermined:
+            locationManager.requestWhenInUseAuthorization()
+        case .authorizedWhenInUse, .authorizedAlways:
+            locationManager.startUpdatingLocation()
+        case .denied, .restricted:
+            showLocationPermissionAlert()
+        @unknown default:
+            break
         }
-    
-    @objc func onButtonCurrentLocationTapped(){
-        if let uwLocation = locationManager.location{
-            mapView.mapView.centerToLocation(location: uwLocation)
-        }
+    }
+
+    func showLocationPermissionAlert() {
+        let alert = UIAlertController(
+            title: "Location Access Required",
+            message: "Please enable location access in Settings to find nearby pharmacies.",
+            preferredStyle: .alert
+        )
         
+        alert.addAction(UIAlertAction(title: "Cancel", style: .cancel))
+        alert.addAction(UIAlertAction(title: "Settings", style: .default) { _ in
+            if let settingsURL = URL(string: UIApplication.openSettingsURLString) {
+                UIApplication.shared.open(settingsURL)
+            }
+        })
+        
+        present(alert, animated: true)
+    }
+    
+    @objc func onButtonCurrentLocationTapped() {
+        switch locationManager.authorizationStatus {
+        case .authorizedWhenInUse, .authorizedAlways:
+            if let location = locationManager.location {
+                mapView.mapView.centerToLocation(location: location)
+                mapView.buttonLoading.isHidden = true
+            } else {
+                locationManager.requestLocation() // Request a one-time location update
+            }
+        case .denied, .restricted:
+            showLocationPermissionAlert()
+        case .notDetermined:
+            locationManager.requestWhenInUseAuthorization()
+        @unknown default:
+            break
+        }
     }
     
     @objc func onButtonSearchTapped(){
