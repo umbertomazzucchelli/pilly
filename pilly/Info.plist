@@ -23,5 +23,9 @@
 			</array>
 		</dict>
 	</dict>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>Pilly needs your location to find nearby pharmacies.</string>
+	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
+	<string>Pilly needs your location to find nearby pharmacies.</string>
 </dict>
 </plist>

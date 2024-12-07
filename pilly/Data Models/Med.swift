@@ -29,4 +29,3 @@ struct Med: Codable {
         self.checkedDates = checkedDates
     }
 }
-
