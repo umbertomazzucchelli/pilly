@@ -1,16 +1,15 @@
 //
 //  PharmacyViewController.swift
-//  My_Profile
+//  pilly
 //
-//  Created by MAD4 on 11/25/24.
+//  Created by Umberto Mazzucchelli on 12/7/24.
 //
 
 import UIKit
 import MapKit
 import CoreLocation
 
-
-class PharmacyViewController: UIViewController, UISearchBarDelegate, CLLocationManagerDelegate {
+class PharmacyViewController: UIViewController {
     
     let mapView = MapView()
     let locationManager = CLLocationManager()
@@ -24,28 +23,47 @@ class PharmacyViewController: UIViewController, UISearchBarDelegate, CLLocationM
         title = "Pharmacy"
         navigationController?.navigationBar.prefersLargeTitles = true
         
-        // Setup location manager and map
         setupLocationServices()
-        
-        // Add action for current location button tap
-        mapView.buttonCurrentLocation.addTarget(self, action: #selector(onButtonCurrentLocationTapped), for: .touchUpInside)
-        
-        // Add action for bottom search button tap
-        mapView.buttonSearch.addTarget(self, action: #selector(onButtonSearchTapped), for: .touchUpInside)
-        
+        setupButtonActions()
         mapView.mapView.delegate = self
+        loadFavoritePharmacy()
     }
     
     private func setupLocationServices() {
         locationManager.delegate = self
         locationManager.desiredAccuracy = kCLLocationAccuracyBest
         
-        // Enable user location display
         mapView.mapView.showsUserLocation = true
         mapView.mapView.userTrackingMode = .follow
         
-        // Request permission
         requestLocationPermission()
+    }
+    
+    private func setupButtonActions() {
+        mapView.buttonCurrentLocation.addTarget(self, action: #selector(onButtonCurrentLocationTapped), for: .touchUpInside)
+        mapView.buttonSearch.addTarget(self, action: #selector(onButtonSearchTapped), for: .touchUpInside)
+    }
+    
+    private func loadFavoritePharmacy() {
+        PharmacyManager.shared.getFavoritePharmacy { [weak self] result in
+            switch result {
+            case .success(let pharmacy):
+                if let pharmacy = pharmacy {
+                    DispatchQueue.main.async {
+                        let coordinate = CLLocationCoordinate2D(latitude: pharmacy.latitude, longitude: pharmacy.longitude)
+                        let place = Place(
+                            title: pharmacy.name,
+                            coordinate: coordinate,
+                            info: pharmacy.address
+                        )
+                        self?.mapView.mapView.addAnnotation(place)
+                        self?.mapView.mapView.setCenter(coordinate, animated: true)
+                    }
+                }
+            case .failure(let error):
+                print("Error loading favorite pharmacy: \(error)")
+            }
+        }
     }
     
     func requestLocationPermission() {
@@ -110,14 +128,121 @@ class PharmacyViewController: UIViewController, UISearchBarDelegate, CLLocationM
         present(alert, animated: true)
     }
     
-    // MARK: - CLLocationManagerDelegate Methods
+    func showSelectedPlace(placeItem: MKMapItem) {
+        let coordinate = placeItem.placemark.coordinate
+        mapView.mapView.centerToLocation(
+            location: CLLocation(
+                latitude: coordinate.latitude,
+                longitude: coordinate.longitude
+            )
+        )
+        
+        var detailInfo = ""
+        if let address = placeItem.placemark.formattedAddress {
+            detailInfo += address
+        }
+        
+        if let userLocation = locationManager.location {
+            let distance = calculateDistance(from: userLocation, to: coordinate)
+            detailInfo += "\nDistance: \(distance)"
+        }
+        
+        let place = Place(
+            title: placeItem.name ?? "Unknown",
+            coordinate: coordinate,
+            info: detailInfo
+        )
+        
+        mapView.mapView.removeAnnotations(mapView.mapView.annotations)
+        mapView.mapView.addAnnotation(place)
+        
+        showPharmacyOptions(for: placeItem)
+    }
+    
+    func showPharmacyOptions(for mapItem: MKMapItem) {
+        let actionSheet = UIAlertController(
+            title: mapItem.name,
+            message: mapItem.placemark.formattedAddress,
+            preferredStyle: .actionSheet
+        )
+        
+        actionSheet.addAction(UIAlertAction(title: "Set as Favorite Pharmacy", style: .default) { [weak self] _ in
+            self?.setFavoritePharmacy(mapItem)
+        })
+        
+        actionSheet.addAction(UIAlertAction(title: "Get Directions", style: .default) { [weak self] _ in
+            self?.openDirections(to: mapItem)
+        })
+        
+        actionSheet.addAction(UIAlertAction(title: "Cancel", style: .cancel))
+        
+        if let popoverController = actionSheet.popoverPresentationController {
+            popoverController.sourceView = self.view
+            popoverController.sourceRect = CGRect(x: self.view.bounds.midX, y: self.view.bounds.midY, width: 0, height: 0)
+            popoverController.permittedArrowDirections = []
+        }
+        
+        present(actionSheet, animated: true)
+    }
+    
+    private func openDirections(to mapItem: MKMapItem) {
+        let launchOptions = [MKLaunchOptionsDirectionsModeKey: MKLaunchOptionsDirectionsModeDriving]
+        mapItem.openInMaps(launchOptions: launchOptions)
+    }
+    
+    private func setFavoritePharmacy(_ mapItem: MKMapItem) {
+        PharmacyManager.shared.saveFavoritePharmacy(pharmacy: mapItem) { [weak self] result in
+            DispatchQueue.main.async {
+                switch result {
+                case .success:
+                    self?.showSuccessAlert()
+                case .failure(let error):
+                    self?.showErrorAlert(message: error.localizedDescription)
+                }
+            }
+        }
+    }
+    
+    private func showSuccessAlert() {
+        let alert = UIAlertController(
+            title: "Success",
+            message: "Favorite pharmacy has been set successfully!",
+            preferredStyle: .alert
+        )
+        alert.addAction(UIAlertAction(title: "OK", style: .default))
+        present(alert, animated: true)
+    }
+    
+    private func showErrorAlert(message: String) {
+        let alert = UIAlertController(
+            title: "Error",
+            message: "Failed to set favorite pharmacy: \(message)",
+            preferredStyle: .alert
+        )
+        alert.addAction(UIAlertAction(title: "OK", style: .default))
+        present(alert, animated: true)
+    }
+    
+    private func calculateDistance(from userLocation: CLLocation, to coordinate: CLLocationCoordinate2D) -> String {
+        let destinationLocation = CLLocation(latitude: coordinate.latitude, longitude: coordinate.longitude)
+        let distance = userLocation.distance(from: destinationLocation)
+        
+        if distance < 1000 {
+            return String(format: "%.0f m", distance)
+        } else {
+            return String(format: "%.1f km", distance/1000)
+        }
+    }
+}
+
+// MARK: - CLLocationManagerDelegate
+extension PharmacyViewController: CLLocationManagerDelegate {
     func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
         guard let location = locations.first else { return }
         
         mapView.buttonLoading.isHidden = true
         mapView.buttonSearch.isHidden = false
         
-        // Center map on first location update
         let region = MKCoordinateRegion(
             center: location.coordinate,
             latitudinalMeters: 1000,
@@ -125,7 +250,6 @@ class PharmacyViewController: UIViewController, UISearchBarDelegate, CLLocationM
         )
         mapView.mapView.setRegion(region, animated: true)
         
-        // Stop updating location after initial set
         locationManager.stopUpdatingLocation()
     }
     
@@ -145,49 +269,6 @@ class PharmacyViewController: UIViewController, UISearchBarDelegate, CLLocationM
             manager.requestWhenInUseAuthorization()
         @unknown default:
             break
-        }
-    }
-    
-    // MARK: - Place Selection
-    func showSelectedPlace(placeItem: MKMapItem) {
-        let coordinate = placeItem.placemark.coordinate
-        mapView.mapView.centerToLocation(
-            location: CLLocation(
-                latitude: coordinate.latitude,
-                longitude: coordinate.longitude
-            )
-        )
-        
-        // Create a more detailed place annotation
-        var detailInfo = ""
-        if let address = placeItem.placemark.formattedAddress {
-            detailInfo += address
-        }
-        
-        if let userLocation = locationManager.location {
-            let distance = calculateDistance(from: userLocation, to: coordinate)
-            detailInfo += "\nDistance: \(distance)"
-        }
-        
-        let place = Place(
-            title: placeItem.name ?? "Unknown",
-            coordinate: coordinate,
-            info: detailInfo
-        )
-        
-        // Remove existing annotations and add the new one
-        mapView.mapView.removeAnnotations(mapView.mapView.annotations)
-        mapView.mapView.addAnnotation(place)
-    }
-    
-    private func calculateDistance(from userLocation: CLLocation, to coordinate: CLLocationCoordinate2D) -> String {
-        let destinationLocation = CLLocation(latitude: coordinate.latitude, longitude: coordinate.longitude)
-        let distance = userLocation.distance(from: destinationLocation)
-        
-        if distance < 1000 {
-            return String(format: "%.0f m", distance)
-        } else {
-            return String(format: "%.1f km", distance/1000)
         }
     }
 }

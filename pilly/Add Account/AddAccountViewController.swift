@@ -43,10 +43,11 @@ class AddAccountViewController: UIViewController {
     }
 
     @objc func onCreateAccountButton() {
-        guard validateName(addView.nameTextField),
-            validateEmail(addView.emailTextField),
-            validatePassword(addView.passwordTextField),
-            validatePhone(addView.phoneTextField)
+        guard validateName(addView.firstNameTextField),
+              validateName(addView.lastNameTextField),
+              validateEmail(addView.emailTextField),
+              validatePassword(addView.passwordTextField),
+              validatePhone(addView.phoneTextField)
         else {
             return
         }
@@ -98,8 +99,12 @@ class AddAccountViewController: UIViewController {
     }
 
     func validateName(_ textField: UITextField) -> Bool {
-        guard let name = textField.text, !name.isEmpty else {
-            showAlert(message: "Name is required.")
+        // Original validation for single nameTextField
+        guard let firstName = addView.firstNameTextField.text,
+              let lastName = addView.lastNameTextField.text,
+              !firstName.isEmpty,
+              !lastName.isEmpty else {
+            showAlert(message: "First and last name are required.")
             return false
         }
         return true

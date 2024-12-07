@@ -82,9 +82,15 @@ class PersonalInfoView: UIView {
                     let user = try document.data(as: User.self)
                     
                     // Bind the data to the labels
-                    self?.nameLabel.text = "Name: \(user.name)"
+                    self?.nameLabel.text = "Name: \(user.firstName) \(user.lastName)"
                     self?.emailLabel.text = "Email: \(user.email)"
                     self?.phoneLabel.text = "Phone: \(user.phone ?? "N/A")"
+                    
+                    // Load profile photo if available
+                    if let photoURL = user.profileImageUrl,
+                       let url = URL(string: photoURL) {
+                        self?.loadProfilePhoto(from: url)
+                    }
                     
                 } catch {
                     print("Error decoding user data: \(error)")
@@ -93,26 +99,34 @@ class PersonalInfoView: UIView {
                 print("Document does not exist, creating new document.")
                 
                 if let currentUser = Auth.auth().currentUser {
-                    let name = currentUser.displayName ?? "Unknown Name"
+                    let displayName = currentUser.displayName?.components(separatedBy: " ")
+                    let firstName = displayName?.first ?? "Unknown"
+                    let lastName = displayName?.last ?? "Name"
                     let email = currentUser.email ?? "Unknown Email"
                     let phone = currentUser.phoneNumber
                     
-                    self?.createUserDocument(userId: userId, name: name, email: email, phone: phone)
+                    self?.createUserDocument(
+                        userId: userId,
+                        firstName: firstName,
+                        lastName: lastName,
+                        email: email,
+                        phone: phone
+                    )
                 }
             }
         }
     }
 
-    
-    func createUserDocument(userId: String, name: String, email: String, phone: String?) {
+    func createUserDocument(userId: String, firstName: String, lastName: String, email: String, phone: String?) {
         let db = Firestore.firestore()
         let userRef = db.collection("users").document(userId)
         
         userRef.setData([
-            "name": name,
+            "firstName": firstName,
+            "lastName": lastName,
             "email": email,
             "phone": phone ?? "",
-            "photoURL": ""
+            "profileImageUrl": ""
         ]) { error in
             if let error = error {
                 print("Error creating user document: \(error)")
@@ -122,10 +136,7 @@ class PersonalInfoView: UIView {
         }
     }
     
-    func loadProfilePhoto(urlString: String) {
-        guard let url = URL(string: urlString) else { return }
-        
-        // Fetch the image from the URL
+    func loadProfilePhoto(from url: URL) {
         URLSession.shared.dataTask(with: url) { [weak self] data, _, error in
             if let error = error {
                 print("Error loading profile photo: \(error)")

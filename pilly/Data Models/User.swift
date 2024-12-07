@@ -10,13 +10,21 @@ import FirebaseFirestoreSwift
 
 struct User: Codable {
     @DocumentID var id: String?
-    var name: String
+    var firstName: String
+    var lastName: String
     var email: String
-    var phone: String? // Optional phone field
-
-    init(name: String, email: String, phone: String?) {
-        self.name = name
+    var phone: String?
+    var profileImageUrl: String?
+    
+    var fullName: String {
+        return "\(firstName) \(lastName)"
+    }
+    
+    init(firstName: String, lastName: String, email: String, phone: String?, profileImageUrl: String? = nil) {
+        self.firstName = firstName
+        self.lastName = lastName
         self.email = email
         self.phone = phone
+        self.profileImageUrl = profileImageUrl
     }
 }
