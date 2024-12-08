@@ -32,7 +32,6 @@ class CalendarView: UIView {
         calendarView.calendar = .current
         calendarView.locale = .current
         calendarView.backgroundColor = .white
-       
         calendarView.tintColor = UIColor.systemPink.withAlphaComponent(0.3)
         calendarView.translatesAutoresizingMaskIntoConstraints = false
         self.addSubview(calendarView)
@@ -45,7 +44,6 @@ class CalendarView: UIView {
         tableViewEvents.isScrollEnabled = true
         tableViewEvents.rowHeight = UITableView.automaticDimension
         tableViewEvents.estimatedRowHeight = 100
-
         tableViewEvents.translatesAutoresizingMaskIntoConstraints = false
         self.addSubview(tableViewEvents)
     }
@@ -62,14 +60,14 @@ class CalendarView: UIView {
     
     func initConstraints() {
         NSLayoutConstraint.activate([
-            // Calendar constraints
+            // Calendar constraints - increased height
             calendarView.topAnchor.constraint(equalTo: self.safeAreaLayoutGuide.topAnchor, constant: 16),
             calendarView.leadingAnchor.constraint(equalTo: self.safeAreaLayoutGuide.leadingAnchor, constant: 16),
             calendarView.trailingAnchor.constraint(equalTo: self.safeAreaLayoutGuide.trailingAnchor, constant: -16),
-            calendarView.heightAnchor.constraint(equalToConstant: 300),
+            calendarView.heightAnchor.constraint(equalToConstant: 380), // Increased from 300
             
             // Table view constraints
-            tableViewEvents.topAnchor.constraint(equalTo: calendarView.bottomAnchor, constant: 50),
+            tableViewEvents.topAnchor.constraint(equalTo: calendarView.bottomAnchor, constant: 20), // Reduced spacing
             tableViewEvents.leadingAnchor.constraint(equalTo: self.safeAreaLayoutGuide.leadingAnchor),
             tableViewEvents.trailingAnchor.constraint(equalTo: self.safeAreaLayoutGuide.trailingAnchor),
             tableViewEvents.bottomAnchor.constraint(equalTo: self.safeAreaLayoutGuide.bottomAnchor),
@@ -82,14 +80,12 @@ class CalendarView: UIView {
     
     func hideCheckboxButton() {
         tableViewEvents.reloadData()
-                tableViewEvents.visibleCells.forEach { cell in
+        tableViewEvents.visibleCells.forEach { cell in
             if let medCell = cell as? TableViewMedCell {
-                print("Hiding checkbox for cell")
                 medCell.checkboxButton.isHidden = true
             }
         }
     }
-
 
     func showCheckboxButton() {
         tableViewEvents.visibleCells.forEach { cell in
@@ -98,5 +94,4 @@ class CalendarView: UIView {
             }
         }
     }
-
 }

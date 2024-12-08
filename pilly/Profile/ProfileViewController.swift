@@ -11,13 +11,17 @@ class ProfileViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         setupButtonActions()
+        
+        // Load pharmacy data on initial load
+        profileView.updateFavoritePharmacy()
     }
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
+        // Refresh pharmacy data when view appears
         profileView.updateFavoritePharmacy()
         
-        // Listen for pharmacy updates
+        // Add observer for pharmacy updates
         NotificationCenter.default.addObserver(
             self,
             selector: #selector(handlePharmacyUpdate),
@@ -38,7 +42,8 @@ class ProfileViewController: UIViewController {
     }
     
     @objc func onPharmacyButtonTapped() {
-        navigationController?.pushViewController(PharmacyViewController(), animated: true)
+        let pharmacyVC = PharmacyViewController()
+        navigationController?.pushViewController(pharmacyVC, animated: true)
     }
     
     @objc func onPersonalInfoButtonTapped() {

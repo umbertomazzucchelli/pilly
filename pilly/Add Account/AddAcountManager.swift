@@ -10,6 +10,7 @@ import FirebaseFirestore
 import FirebaseFirestoreSwift
 import FirebaseStorage
 import Foundation
+import UIKit
 
 extension AddAccountViewController {
     func addNewAccount() {
@@ -34,15 +35,23 @@ extension AddAccountViewController {
 
             if let image = self.pickedImage,
                let imageData = image.jpegData(compressionQuality: 0.8) {
-                // Upload profile image
-                let storageRef = Storage.storage().reference().child("profileImages/\(userId).jpg")
-                storageRef.putData(imageData, metadata: nil) { metadata, error in
+                // Create storage reference with proper path
+                let storage = Storage.storage()
+                let storageRef = storage.reference()
+                let profileImageRef = storageRef.child("profile_images/\(userId).jpg")
+                
+                // Add metadata
+                let metadata = StorageMetadata()
+                metadata.contentType = "image/jpeg"
+                
+                // Upload image with metadata
+                profileImageRef.putData(imageData, metadata: metadata) { metadata, error in
                     if let error = error {
                         self.showAlert(message: "Error uploading image: \(error.localizedDescription)")
                         return
                     }
 
-                    storageRef.downloadURL { url, error in
+                    profileImageRef.downloadURL { url, error in
                         if let error = error {
                             self.showAlert(message: "Error getting image URL: \(error.localizedDescription)")
                             return
@@ -76,7 +85,8 @@ extension AddAccountViewController {
             "lastName": lastName,
             "email": email,
             "phone": addView.phoneTextField.text ?? "",
-            "profileImageUrl": profileImageUrl ?? ""
+            "profileImageUrl": profileImageUrl ?? "",
+            "createdAt": FieldValue.serverTimestamp()
         ]
 
         Firestore.firestore().collection("users").document(userId).setData(userData) { [weak self] error in
@@ -85,6 +95,7 @@ extension AddAccountViewController {
             if let error = error {
                 self.showAlert(message: "Error saving user data: \(error.localizedDescription)")
             } else {
+                self.setNameOfTheUserInFirebaseAuth(firstName: firstName, lastName: lastName)
                 self.navigateToMainTabBarController()
             }
         }
@@ -125,5 +136,11 @@ extension AddAccountViewController {
             window.makeKeyAndVisible()
             delegate?.didCompleteAccountCreation()
         }
+    }
+
+    private func validateImage(_ image: UIImage) -> Bool {
+        let maxSize: Int64 = 5 * 1024 * 1024  // 5MB
+        guard let imageData = image.jpegData(compressionQuality: 0.8) else { return false }
+        return imageData.count <= maxSize
     }
 }

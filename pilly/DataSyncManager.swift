@@ -31,6 +31,7 @@ class DataSyncManager {
             
             let medications = snapshot?.documents.compactMap { document -> Med? in
                 let data = document.data()
+                let startTimestamp = data["startDate"] as? Timestamp
                 return Med(
                     id: document.documentID,
                     title: data["title"] as? String,
@@ -38,7 +39,8 @@ class DataSyncManager {
                     dosage: Dosage(rawValue: (data["dosage"] as? String) ?? ""),
                     frequency: Frequency(rawValue: (data["frequency"] as? String) ?? ""),
                     time: data["time"] as? String,
-                    isChecked: data["isChecked"] as? Bool ?? false
+                    isChecked: data["isChecked"] as? Bool ?? false,
+                    startDate: startTimestamp?.dateValue()
                 )
             } ?? []
             

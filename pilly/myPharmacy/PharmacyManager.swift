@@ -45,7 +45,7 @@ class PharmacyManager {
             if let error = error {
                 completion(.failure(error))
             } else {
-                NotificationCenter.default.post(name: .favoritePharmacyUpdated, object: nil)
+                // Successfully saved, complete with success
                 completion(.success(()))
             }
         }

@@ -15,7 +15,8 @@ class ProfileView: UIView {
     var personalInfoButton: UIButton!
     var myPharmacyButton: UIButton!
     var settingsButton: UIButton!
-
+    private var pharmacyObserver: NSObjectProtocol?
+    
     override init(frame: CGRect) {
         super.init(frame: frame)
         backgroundColor = .white
@@ -26,10 +27,32 @@ class ProfileView: UIView {
         setupSettingsButton()
         initConstraints()
         loadUserData()
+        setupPharmacyNotifications()
     }
     
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
+    }
+    
+    private func setupPharmacyNotifications() {
+        // Remove any existing observer
+        if let observer = pharmacyObserver {
+            NotificationCenter.default.removeObserver(observer)
+        }
+        
+        // Add new observer
+        pharmacyObserver = NotificationCenter.default.addObserver(
+            forName: .favoritePharmacyUpdated,
+            object: nil,
+            queue: .main) { [weak self] _ in
+                self?.updateFavoritePharmacy()
+            }
+    }
+    
+    deinit {
+        if let observer = pharmacyObserver {
+            NotificationCenter.default.removeObserver(observer)
+        }
     }
     
     private func setupUserInfoButton() {
@@ -64,11 +87,8 @@ class ProfileView: UIView {
     
     func setupMyPharmacyButton() {
         myPharmacyButton = UIButton(type: .system)
-        myPharmacyButton.setTitle("Set My Pharmacy", for: .normal)
-        myPharmacyButton.titleLabel?.font = UIFont.systemFont(ofSize: 18)
-        myPharmacyButton.setImage(UIImage(systemName: "cross.fill"), for: .normal)
-        myPharmacyButton.backgroundColor = UIColor.systemPink.withAlphaComponent(0.3)
-        myPharmacyButton.tintColor = .white
+        // Initial setup with default state
+        resetPharmacyButton()
         myPharmacyButton.layer.cornerRadius = 10
         myPharmacyButton.translatesAutoresizingMaskIntoConstraints = false
         addSubview(myPharmacyButton)
@@ -144,13 +164,15 @@ class ProfileView: UIView {
     func updateFavoritePharmacy() {
         PharmacyManager.shared.getFavoritePharmacy { [weak self] result in
             DispatchQueue.main.async {
+                guard let self = self else { return }
+                
                 switch result {
                 case .success(let pharmacy):
                     if let pharmacy = pharmacy {
+                        // Create and store the configuration
                         var config = UIButton.Configuration.filled()
                         config.title = "My Pharmacy: \(pharmacy.name)"
                         
-                        // Only show address if it's not empty
                         if !pharmacy.address.isEmpty && pharmacy.address != "No address available" {
                             config.subtitle = pharmacy.address
                         }
@@ -161,16 +183,29 @@ class ProfileView: UIView {
                         config.titleAlignment = .leading
                         config.background.backgroundColor = UIColor.systemPink.withAlphaComponent(0.3)
                         
-                        self?.myPharmacyButton.configuration = config
+                        // Apply the configuration
+                        self.myPharmacyButton.configuration = config
+                        
+                        // Store the pharmacy data
+                        self.myPharmacyButton.tag = 1 // Mark as having a pharmacy set
                     } else {
-                        // No favorite pharmacy set
-                        self?.myPharmacyButton.setTitle("Set My Pharmacy", for: .normal)
+                        self.resetPharmacyButton()
                     }
                 case .failure(let error):
                     print("Error fetching favorite pharmacy: \(error)")
-                    self?.myPharmacyButton.setTitle("Set My Pharmacy", for: .normal)
+                    self.resetPharmacyButton()
                 }
             }
         }
+    }
+    
+    private func resetPharmacyButton() {
+        var config = UIButton.Configuration.filled()
+        config.title = "Set My Pharmacy"
+        config.image = UIImage(systemName: "cross.fill")
+        config.background.backgroundColor = UIColor.systemPink.withAlphaComponent(0.3)
+        config.baseForegroundColor = .white
+        myPharmacyButton.configuration = config
+        myPharmacyButton.tag = 0 // Mark as not having a pharmacy set
     }
 }

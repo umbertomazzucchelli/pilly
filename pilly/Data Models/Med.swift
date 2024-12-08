@@ -16,9 +16,17 @@ struct Med: Codable {
     var time: String?
     var isChecked: Bool
     var checkedDates: [Date: Bool]
+    var startDate: Date?
 
-    init(id: String? = nil, title: String? = nil, amount: String? = nil, dosage: Dosage? = nil, frequency: Frequency? = nil,
-         time: String? = nil, isChecked: Bool = false, checkedDates: [Date: Bool] = [:]) {
+    init(id: String? = nil,
+         title: String? = nil,
+         amount: String? = nil,
+         dosage: Dosage? = nil,
+         frequency: Frequency? = nil,
+         time: String? = nil,
+         isChecked: Bool = false,
+         checkedDates: [Date: Bool] = [:],
+         startDate: Date? = nil) {
         self.id = id
         self.title = title
         self.amount = amount
@@ -27,5 +35,6 @@ struct Med: Codable {
         self.time = time
         self.isChecked = isChecked
         self.checkedDates = checkedDates
+        self.startDate = startDate
     }
 }

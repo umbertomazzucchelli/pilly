@@ -195,6 +195,8 @@ class PharmacyViewController: UIViewController {
             DispatchQueue.main.async {
                 switch result {
                 case .success:
+                    // Post notification immediately after successful save
+                    NotificationCenter.default.post(name: .favoritePharmacyUpdated, object: nil)
                     self?.showSuccessAlert()
                 case .failure(let error):
                     self?.showErrorAlert(message: error.localizedDescription)
